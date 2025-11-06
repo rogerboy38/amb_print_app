@@ -129,9 +129,9 @@ Edit `config/credentials.json` with your ERPNext credentials:
 ## 📝 API Credentials (TestProd)
 
 Credentials are pre-configured for:
-- **Base URL**: `https://sysmayal.frappe.cloud`
-- **API Key**: `1ae51d15c7633b7`
-- **API Secret**: `cf2f4056efb7b1d`
+- **Base URL**: `
+- **API Key**: 
+- **API Secret**: `
 
 ## 📚 Documentation
 
