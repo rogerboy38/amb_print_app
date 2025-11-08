@@ -120,8 +120,7 @@ def mock_http_response():
 # ===== EXPORTER FIXTURES =====
 
 @pytest.fixture
-def 135
-():
+def test_exporter():
     """Base exporter instance for testing."""
     from src.exporters.base_exporter import BaseExporter
     
