@@ -16,6 +16,7 @@ from unittest.mock import Mock, MagicMock, patch
 
 import pytest
 from datetime import datetime
+from typing import Dict, Any
 
 
 # ===== MAPPING DATA FIXTURES =====
@@ -119,17 +120,25 @@ def mock_http_response():
 # ===== EXPORTER FIXTURES =====
 
 @pytest.fixture
-def base_exporter_instance():
+def 135
+():
     """Base exporter instance for testing."""
     from src.exporters.base_exporter import BaseExporter
     
-    class TestExporter(BaseExporter):
+class TestExporter(BaseExporter):
+        """Test exporter implementing all abstract methods."""
+        
+        def export_mapping(self, mapping: Dict[str, Any]) -> Any:
+            """Implement abstract export_mapping method."""
+            return {"status": "success", "data": mapping}
+        
+        def validate_mapping(self, mapping: Dict[str, Any]) -> bool:
+            """Implement abstract validate_mapping method."""
+            return True
+        
         def export(self, mapping_data, output_path):
+            """Export data to file."""
             return {"status": "success", "data": mapping_data}
-    
-    return TestExporter()
-
-
 @pytest.fixture
 def html_jinja_exporter_instance():
     """HTML/Jinja2 exporter instance for testing."""
