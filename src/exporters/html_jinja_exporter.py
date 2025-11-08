@@ -1,3 +1,4 @@
+
 """
 HTML/Jinja Template Exporter for ERPNext Print Formats
 
@@ -189,3 +190,116 @@ class HTMLJinjaExporter(BaseExporter):
         except Exception as e:
             self.add_error(f"Failed to write template: {str(e)}")
             return False
+
+    def generate_html(self, mapping: Dict[str, Any]) -> str:
+        """
+        Generate HTML content from mapping data
+        
+        Args:
+            mapping (dict): Mapped fields from PDF
+        
+        Returns:
+            str: Generated HTML content
+        """
+        if not isinstance(mapping, dict):
+            self.add_error("Mapping must be a dictionary")
+            return ""
+        
+        html_content = self._build_html_from_mapping(mapping)
+        return html_content
+    
+    def validate_template_syntax(self, mapping: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Validate Jinja2 template syntax
+        
+        Args:
+            mapping (dict): Mapping data
+        
+        Returns:
+            dict: Validation result with 'is_valid' and 'errors' keys
+        """
+        try:
+            if not isinstance(mapping, dict):
+                return {"is_valid": False, "errors": ["Mapping must be a dictionary"]}
+            
+            # Try to parse the template to check syntax
+            html_content = self._build_html_from_mapping(mapping)
+            template = Template(html_content)
+            
+            return {"is_valid": True, "errors": []}
+        except Exception as e:
+            return {"is_valid": False, "errors": [str(e)]}
+    
+    def get_table_mappings(self, mapping: Dict[str, Any]) -> List[Dict[str, Any]]:
+        """
+        Extract table mappings from mapping data
+        
+        Args:
+            mapping (dict): Mapping data
+        
+        Returns:
+            list: List of table mappings
+        """
+        tables = []
+        
+        if not isinstance(mapping, dict):
+            return tables
+        
+        if 'child_table' in mapping and isinstance(mapping['child_table'], list):
+            for idx, row in enumerate(mapping['child_table']):
+                tables.append({
+                    "table_index": idx,
+                    "row_data": row if isinstance(row, dict) else {},
+                    "columns": len(row) if isinstance(row, (list, dict)) else 0
+                })
+        
+        return tables
+    
+    def export(self, mapping: Dict[str, Any], output_path: str) -> Dict[str, Any]:
+        """
+        Export mapping to HTML file
+        
+        Args:
+            mapping (dict): Mapping data to export
+            output_path (str): Path where to save the HTML file
+        
+        Returns:
+            dict: Export result with status and details
+        """
+        self.clear_messages()
+        
+        # Validate mapping first
+        if not self.validate_mapping(mapping):
+            return {
+                "status": "error",
+                "errors": self.get_errors(),
+                "output_path": None
+            }
+        
+        try:
+            # Generate HTML content
+            html_content = self.export_mapping(mapping)
+            
+            # Write to file
+            success = self.to_file(output_path)
+            
+            if success:
+                return {
+                    "status": "success",
+                    "output_path": output_path,
+                    "errors": self.get_errors(),
+                    "warnings": self.get_warnings()
+                }
+            else:
+                return {
+                    "status": "error",
+                    "errors": self.get_errors(),
+                    "output_path": None
+                }
+        except Exception as e:
+            self.add_error(f"Export failed: {str(e)}")
+            return {
+                "status": "error",
+                "errors": self.get_errors(),
+                "output_path": None
+            }
