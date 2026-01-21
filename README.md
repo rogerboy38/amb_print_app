@@ -1,145 +1,146 @@
-# ERPNext Print Designer Migration Tool
+# AMB Print - Frappe App
 
-**Hybrid Automation Workflow for PDF → ERPNext Print Format Migration**
+**Print Format Migration Tool for ERPNext v16+ with Chromium PDF Backend**
 
-A complete Python-based extraction and automation pipeline for migrating legacy PDF report designs to ERPNext print formats using AI-assisted templating and direct API integration.
+A hybrid Frappe app that combines the original Python-based extraction pipeline with native Frappe integration for background jobs, scheduling, and UI management.
 
-## 🎯 Project Overview
+## 🎯 Overview
 
-This project automates the migration of three key print format documents:
+This project provides two modes of operation:
+
+### Mode 1: Frappe App (Recommended)
+- Background job processing via `frappe.enqueue`
+- Chromium PDF engine integration (Frappe v16+)
+- UI control panel for migration management
+- Scheduled automation via Frappe scheduler
+- Migration logs for monitoring and debugging
+
+### Mode 2: Standalone CLI (Legacy)
+- Direct Python script execution
+- Manual batch processing
+- Works outside Frappe environment
+
+## 📋 Supported Documents
+
 - **COA AMB** - Certificate of Analysis with inspection results
 - **Quotation (Normal)** - Standard quotation format
 - **Quotation (Escalated)** - Variant with escalation details
 
-## 📋 Features
+## Requirements
 
-✅ **PDF Extraction** - Generate PDFs directly from ERPNext sandbox using REST API
-✅ **Structure Parsing** - Extract tables, text, and layout from PDFs using pdfplumber
-✅ **Field Mapping** - Automatic mapping of PDF fields to ERPNext DocType fields
-✅ **Batch Processing** - Process multiple documents with error handling and retry logic
-✅ **API Integration** - Direct upload of print formats to ERPNext via REST API
-✅ **Comprehensive Logging** - Track all operations and errors
-✅ **Multi-Environment** - Support for TestProd and Production environments
+- Frappe v16.0.0+
+- ERPNext v16.0.0+
+- Python 3.14+
 
-## 🚀 Quick Start
-
-### Installation
+## 🚀 Installation (Frappe App)
 
 ```bash
-# Clone repository
-git clone git@github.com:rogerboy38/amb_print_app.git
-cd amb_print_app
+# Clone the app
+cd ~/frappe-bench
+bench get-app https://github.com/rogerboy38/amb_print_app.git
 
-# Install dependencies
-pip install -r requirements.txt
+# Install on your site
+bench --site your-site install-app amb_print
 
-# Configure credentials
-cp config/credentials.json.template config/credentials.json
-# Edit config/credentials.json with your ERPNext API keys
+# Run migrations
+bench --site your-site migrate
+
+# Restart for scheduler
+bench restart
 ```
 
-### Usage
+### Configuration
 
-```bash
-# Option 1: Run complete pipeline
-python scripts/05_batch_migration.py
+Add to your `site_config.json`:
 
-# Option 2: Run individual steps
-python scripts/01_extract_pdfs.py           # Generate PDFs
-python scripts/02_parse_structures.py       # Extract structures
-python scripts/03_generate_mappings.py      # Create mappings
-python scripts/04_upload_formats.py         # Upload to ERPNext
+```json
+{
+    "pdf_engine": "chromium",
+    "amb_print": {
+        "base_url": "https://your-site.frappe.cloud",
+        "api_key": "your_api_key",
+        "api_secret": "your_api_secret"
+    }
+}
 ```
 
 ## 📁 Project Structure
 
 ```
 amb_print_app/
-├── src/                          # Core Python modules
-│   ├── erpnext_api.py           # ERPNext API client
-│   ├── pdf_extractor.py         # PDF parsing engine
-│   ├── field_mapper.py          # Field mapping schemas
-│   ├── batch_processor.py       # Batch processing logic
-│   └── utils.py                 # Utility functions
-├── scripts/                     # Executable scripts
-│   ├── 01_extract_pdfs.py      # PDF generation
-│   ├── 02_parse_structures.py  # Structure extraction
-│   ├── 03_generate_mappings.py # Mapping generation
-│   ├── 04_upload_formats.py    # API uploads
-│   └── 05_batch_migration.py   # Complete pipeline
+├── amb_print/                    # Frappe app module
+│   ├── __init__.py
+│   ├── hooks.py                 # Frappe hooks & scheduler
+│   ├── modules.txt
+│   ├── tasks.py                 # Background job definitions
+│   ├── install.py               # Post-install hooks
+│   ├── amb_print/               # Module directory
+│   │   ├── api.py              # Whitelisted API methods
+│   │   └── doctype/            # DocType definitions
+│   │       ├── print_migration_job/
+│   │       ├── print_migration_log/
+│   │       └── print_migration_document_type/
+│   └── core/                    # Core logic (original pipeline)
+│       ├── batch_processor.py
+│       └── erpnext_api.py
+├── src/                         # Original standalone modules
+│   ├── config.py
+│   ├── pdf_parser.py
+│   ├── template_generator.py
+│   ├── exporters/
+│   └── ui/
+├── scripts/                     # Standalone CLI scripts
 ├── config/                      # Configuration files
-│   ├── credentials.json.template
-│   └── environments.json
-├── data/                        # Data directories
-│   ├── extracted_pdfs/         # Generated PDFs
-│   ├── pdf_structures/         # JSON structures
-│   └── field_mappings/         # Mapping schemas
-├── logs/                        # Log files
-├── requirements.txt             # Python dependencies
-└── README.md                    # This file
+├── pyproject.toml              # Frappe app metadata
+└── README.md
 ```
 
-## 🔧 Configuration
+## 🖥️ Usage (Frappe App)
 
-Edit `config/credentials.json` with your ERPNext credentials:
+1. Navigate to **Print Migration Job** in Frappe desk
+2. Select document types to migrate
+3. Click **Run Migration** button
+4. Monitor progress in real-time
+5. Check **Print Migration Log** for detailed results
 
-```json
-{
-  "environments": {
-    "testprod": {
-      "url": "https://sysmayal.frappe.cloud",
-      "api_key": "YOUR_API_KEY",
-      "api_secret": "YOUR_API_SECRET"
-    },
-    "production": {
-      "url": "https://sysmayal.v.frappe.cloud",
-      "api_key": "YOUR_API_KEY",
-      "api_secret": "YOUR_API_SECRET"
-    }
-  }
-}
+### API Endpoints
+
+```python
+# Get migration status
+frappe.call('amb_print.amb_print.api.get_migration_status')
+
+# Get migration logs
+frappe.call('amb_print.amb_print.api.get_migration_logs', limit=50)
+
+# Generate PDF for a document
+frappe.call('amb_print.amb_print.api.generate_pdf_for_document', 
+    doctype='Sales Invoice', docname='INV-001')
 ```
 
-## 📊 Workflow Phases
+## ⏰ Scheduler
 
-### Phase 1: PDF Extraction & Field Mapping
-- Generates PDFs from ERPNext sandbox
-- Extracts table structures, text, and layout
-- Creates JSON field mapping schemas
-- **Status**: ✅ Implemented
+Automated batch migration runs daily at 2 AM (configurable in `hooks.py`).
 
-### Phase 2: Template Refinement
-- Review generated PDFs
-- Refine templates via ERPNext Print Designer UI
-- Validate field mappings
-- **Status**: ℹ️ Manual in ERPNext
+## 🔧 DocTypes
 
-### Phase 3: Quotation Variants
-- Create Quotation Normal print format
-- Create Quotation Escalated variant
-- Apply conditional styling/sections
-- **Status**: ✅ Mapping prepared
+| DocType | Purpose |
+|---------|---------|
+| Print Migration Job | Control panel (Single DocType) |
+| Print Migration Log | Audit trail for each migration |
+| Print Migration Document Type | Link table for document selection |
 
-### Phase 4: API Automation & Testing
-- Automated batch processing
-- API validation and error handling
-- Sandbox → Production migration
-- **Status**: ✅ Implemented
+## 🚀 Usage (Standalone CLI)
 
-## 📝 API Credentials (TestProd)
+```bash
+# Install dependencies
+pip install -r requirements.txt
 
-Credentials are pre-configured for:
-- **Base URL**: `
-- **API Key**: 
-- **API Secret**: `
+# Configure credentials
+cp config/credentials.json.template config/credentials.json
 
-## 📚 Documentation
-
-- **Extract PDFs**: See `scripts/01_extract_pdfs.py`
-- **Parse Structures**: See `scripts/02_parse_structures.py`
-- **Field Mappings**: See `src/field_mapper.py`
-- **API Integration**: See `src/erpnext_api.py`
-- **Batch Processing**: See `src/batch_processor.py`
+# Run complete pipeline
+python scripts/05_batch_migration.py
+```
 
 ## 🔗 ERPNext Resources
 
@@ -152,5 +153,5 @@ MIT
 
 ---
 
-**Created**: November 2025
-**Version**: 1.0.0
+**Version**: 1.0.0  
+**Updated**: January 2026

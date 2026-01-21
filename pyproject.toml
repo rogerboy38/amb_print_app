@@ -1,0 +1,18 @@
+[project]
+name = "amb_print"
+version = "1.0.0"
+description = "Print Format Migration Tool for ERPNext with Chromium PDF backend"
+authors = [{name = "Sysmayal", email = "admin@sysmayal.com"}]
+requires-python = ">=3.14"
+license = {text = "MIT"}
+
+[project.optional-dependencies]
+dev = ["pytest", "pytest-cov"]
+
+[tool.bench.frappe-dependencies]
+frappe = ">=16.0.0"
+erpnext = ">=16.0.0"
+
+[build-system]
+requires = ["flit_core >=3.4"]
+build-backend = "flit_core.buildapi"
