@@ -105,4 +105,4 @@ if __name__ == "__main__":
 
 
 
-chmod +x app_migrator_bridge.py
+# chmod +x app_migrator_bridge.py  # Commented out - shell command

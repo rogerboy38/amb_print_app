@@ -61,4 +61,4 @@ def generate_migrator_config():
 if __name__ == "__main__":
     generate_migrator_config()
 
-python generate_migrator_config.py
+# python generate_migrator_config.py  # Commented out - shell command
