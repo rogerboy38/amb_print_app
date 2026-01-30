@@ -12,7 +12,14 @@ app_license = "MIT"
 required_apps = ["frappe", "erpnext"]
 
 # DocTypes
-fixtures = []
+fixtures = [
+    {
+        "doctype": "Print Format",
+        "filters": {
+            "module": "AMB Print"
+        }
+    }
+]
 
 # Scheduler Events
 scheduler_events = {
