@@ -129,6 +129,33 @@ Automated batch migration runs daily at 2 AM (configurable in `hooks.py`).
 | Print Migration Log | Audit trail for each migration |
 | Print Migration Document Type | Link table for document selection |
 
+## 🖨️ Print Format Templates
+
+The app includes ready-to-use print format templates:
+
+| Print Format | DocType | Description |
+|--------------|---------|-------------|
+| PEDIDO_VENTAS_AMB | Sales Order | Professional sales order format with multi-section layout, dynamic page numbering |
+| COTIZACION_AMB | Quotation | Modern quotation format with customer info, validity notice, signature areas |
+
+### Installing Print Formats
+
+After installing the app, import the print format fixtures:
+
+```bash
+bench --site your-site import-fixtures --app amb_print
+```
+
+### Customizing Templates
+
+See the [WYSIWYG Print Format Guide](docs/WYSIWYG_PRINT_FORMAT_GUIDE.md) for detailed instructions on creating and modifying print formats.
+
+### Documentation
+
+- [WYSIWYG Print Format Guide](docs/WYSIWYG_PRINT_FORMAT_GUIDE.md) - Complete guide to print format development
+- [Lessons Learned](docs/LESSONS_LEARNED.md) - Best practices from development experience
+- [Project Roadmap](docs/PROJECT_ROADMAP.md) - Future development phases
+
 ## 🚀 Usage (Standalone CLI)
 
 ```bash
