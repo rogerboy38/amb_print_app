@@ -11,6 +11,11 @@ app_license = "MIT"
 # Required apps
 required_apps = ["frappe", "erpnext"]
 
+# DocType JS - Load custom JS for specific DocTypes
+doctype_js = {
+    "Sales Order": "public/js/sales_order_labels.js"
+}
+
 # DocTypes
 fixtures = [
     {
