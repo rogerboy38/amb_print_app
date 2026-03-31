@@ -2,8 +2,6 @@
 {% set page_height = "279.4mm" %}
 {% set cell_width = "107.95mm" %}
 {% set cell_height = "139.7mm" %}
-{% set margin_top = "18mm" %}
-{% set margin_left = "12mm" %}
 
 <style>
     @page {
@@ -33,36 +31,58 @@
         overflow: hidden;
     }
     .label-content {
+        /* Clear center zone - avoid top 25mm, right 25mm, bottom 20mm */
         position: absolute;
-        top: {{ margin_top }};
-        left: {{ margin_left }};
-        right: 12mm;
-        bottom: 28mm;
-        font-size: 8pt;
-        line-height: 1.4;
+        top: 25mm;
+        left: 8mm;
+        right: 28mm;
+        bottom: 22mm;
+        font-size: 7pt;
+        line-height: 1.3;
+        display: flex;
+        flex-direction: column;
+        gap: 2mm;
     }
     .label-content .field-label {
         font-weight: bold;
-        font-size: 7pt;
-        color: #555;
+        font-size: 6pt;
+        color: #444;
         text-transform: uppercase;
-        margin-bottom: 1mm;
+        margin: 0;
+        line-height: 1.2;
     }
     .label-content .field-value {
-        font-size: 9pt;
+        font-size: 8pt;
         color: #000;
-        margin-bottom: 3mm;
+        margin: 0;
+        line-height: 1.2;
     }
     .label-content .item-name {
-        font-size: 11pt;
+        font-size: 9pt;
         font-weight: bold;
         color: #1a5c2a;
-        margin-bottom: 2mm;
+        margin: 0;
+        line-height: 1.2;
     }
     .label-content .customer-name {
-        font-size: 10pt;
+        font-size: 9pt;
         font-weight: bold;
-        margin-bottom: 3mm;
+        margin: 0;
+        line-height: 1.2;
+    }
+    .label-content .section {
+        margin-bottom: 1mm;
+    }
+    .label-content .row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 1mm;
+    }
+    .label-content .row .field {
+        flex: 1;
+    }
+    .label-content .row .field:not(:last-child) {
+        margin-right: 3mm;
     }
 </style>
 
@@ -71,35 +91,56 @@
     {% for i in range(4) %}
     <div class="label-cell">
         <div class="label-content">
-            <div class="customer-name">{{ doc.customer_name or doc.customer }}</div>
-
-            <div class="field-label">Sales Order</div>
-            <div class="field-value">{{ doc.name }}</div>
-
-            <div class="field-label">Date</div>
-            <div class="field-value">{{ doc.transaction_date | default("") }}</div>
-
-            <div class="field-label">Delivery Date</div>
-            <div class="field-value">{{ doc.delivery_date | default("") }}</div>
-
+            <div class="section">
+                <div class="customer-name">{{ doc.customer_name or doc.customer }}</div>
+            </div>
+            
+            <div class="section">
+                <div class="row">
+                    <div class="field">
+                        <div class="field-label">Sales Order</div>
+                        <div class="field-value">{{ doc.name }}</div>
+                    </div>
+                    <div class="field">
+                        <div class="field-label">Date</div>
+                        <div class="field-value">{{ doc.transaction_date | default("") }}</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <div class="row">
+                    <div class="field">
+                        <div class="field-label">Delivery</div>
+                        <div class="field-value">{{ doc.delivery_date | default("") }}</div>
+                    </div>
+                    <div class="field">
+                        <div class="field-label">PO No.</div>
+                        <div class="field-value">{{ doc.po_no or "N/A" }}</div>
+                    </div>
+                </div>
+            </div>
+            
             {% if doc.items %}
             {% set item = doc.items[0] %}
-            <div class="item-name">{{ item.item_name or item.item_code }}</div>
-
-            <div class="field-label">Item Code</div>
-            <div class="field-value">{{ item.item_code }}</div>
-
-            <div class="field-label">Qty</div>
-            <div class="field-value">{{ item.qty }} {{ item.uom }}</div>
-
-            {% if item.description %}
-            <div class="field-label">Description</div>
-            <div class="field-value">{{ item.description | truncate(80) }}</div>
+            <div class="section">
+                <div class="item-name">{{ item.item_name or item.item_code }}</div>
+                <div class="row">
+                    <div class="field">
+                        <div class="field-label">Code</div>
+                        <div class="field-value">{{ item.item_code }}</div>
+                    </div>
+                    <div class="field">
+                        <div class="field-label">Qty</div>
+                        <div class="field-value">{{ item.qty }} {{ item.uom }}</div>
+                    </div>
+                </div>
+                {% if item.description %}
+                <div class="field-label">Description</div>
+                <div class="field-value" style="font-size: 7pt;">{{ item.description | truncate(60) }}</div>
+                {% endif %}
+            </div>
             {% endif %}
-            {% endif %}
-
-            <div class="field-label">PO No.</div>
-            <div class="field-value">{{ doc.po_no or "N/A" }}</div>
         </div>
     </div>
     {% endfor %}
