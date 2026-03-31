@@ -18,9 +18,11 @@ frappe.ui.form.on('Sales Order', {
             });
         }, __('Labels'));
         
-        // Add "Print Hello World" button - opens print format
+        // Add "Print Hello World" button - uses Frappe's built-in PDF download
         frm.add_custom_button(__('Print Hello World'), () => {
-            window.open('/api/method/print_format.md_to_html?doctype=Sales Order&name=' + frm.docname + '&format=Label Hello World', '_blank');
+            // Use Frappe's built-in PDF download API (fixes BUG 92B)
+            const url = `/api/method/frappe.utils.print_format.download_pdf?doctype=${encodeURIComponent(frm.doc.doctype)}&name=${encodeURIComponent(frm.docname)}&format=Label Hello World`;
+            window.open(url, '_blank');
         }, __('Labels'));
     }
 });
