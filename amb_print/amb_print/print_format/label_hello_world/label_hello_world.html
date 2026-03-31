@@ -1,0 +1,106 @@
+{% set page_width = "215.9mm" %}
+{% set page_height = "279.4mm" %}
+{% set cell_width = "107.95mm" %}
+{% set cell_height = "139.7mm" %}
+{% set margin_top = "18mm" %}
+{% set margin_left = "12mm" %}
+
+<style>
+    @page {
+        size: 215.9mm 279.4mm;
+        margin: 0;
+    }
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: Arial, Helvetica, sans-serif;
+    }
+    .label-sheet {
+        width: 215.9mm;
+        height: 279.4mm;
+        display: flex;
+        flex-wrap: wrap;
+        align-content: flex-start;
+        padding: 0;
+        margin: 0;
+        box-sizing: border-box;
+    }
+    .label-cell {
+        width: 107.95mm;
+        height: 139.7mm;
+        box-sizing: border-box;
+        position: relative;
+        overflow: hidden;
+    }
+    .label-content {
+        position: absolute;
+        top: {{ margin_top }};
+        left: {{ margin_left }};
+        right: 12mm;
+        bottom: 28mm;
+        font-size: 8pt;
+        line-height: 1.4;
+    }
+    .label-content .field-label {
+        font-weight: bold;
+        font-size: 7pt;
+        color: #555;
+        text-transform: uppercase;
+        margin-bottom: 1mm;
+    }
+    .label-content .field-value {
+        font-size: 9pt;
+        color: #000;
+        margin-bottom: 3mm;
+    }
+    .label-content .item-name {
+        font-size: 11pt;
+        font-weight: bold;
+        color: #1a5c2a;
+        margin-bottom: 2mm;
+    }
+    .label-content .customer-name {
+        font-size: 10pt;
+        font-weight: bold;
+        margin-bottom: 3mm;
+    }
+</style>
+
+<div class="label-sheet">
+    {# Repeat the same label 4 times (2x2 grid) #}
+    {% for i in range(4) %}
+    <div class="label-cell">
+        <div class="label-content">
+            <div class="customer-name">{{ doc.customer_name or doc.customer }}</div>
+
+            <div class="field-label">Sales Order</div>
+            <div class="field-value">{{ doc.name }}</div>
+
+            <div class="field-label">Date</div>
+            <div class="field-value">{{ doc.transaction_date | default("") }}</div>
+
+            <div class="field-label">Delivery Date</div>
+            <div class="field-value">{{ doc.delivery_date | default("") }}</div>
+
+            {% if doc.items %}
+            {% set item = doc.items[0] %}
+            <div class="item-name">{{ item.item_name or item.item_code }}</div>
+
+            <div class="field-label">Item Code</div>
+            <div class="field-value">{{ item.item_code }}</div>
+
+            <div class="field-label">Qty</div>
+            <div class="field-value">{{ item.qty }} {{ item.uom }}</div>
+
+            {% if item.description %}
+            <div class="field-label">Description</div>
+            <div class="field-value">{{ item.description | truncate(80) }}</div>
+            {% endif %}
+            {% endif %}
+
+            <div class="field-label">PO No.</div>
+            <div class="field-value">{{ doc.po_no or "N/A" }}</div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
