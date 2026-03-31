@@ -20,7 +20,7 @@ frappe.ui.form.on('Sales Order', {
         
         // Add "Print Hello World" button - opens print format
         frm.add_custom_button(__('Print Hello World'), () => {
-            window.open('/api method/print_format.md_to_html?doctype=Sales Order&name=' + frm.docname + '&format=Label Hello World', '_blank');
+            window.open('/api/method/print_format.md_to_html?doctype=Sales Order&name=' + frm.docname + '&format=Label Hello World', '_blank');
         }, __('Labels'));
     }
 });
