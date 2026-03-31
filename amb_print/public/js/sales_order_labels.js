@@ -6,7 +6,7 @@ frappe.ui.form.on('Sales Order', {
         // Add "Hello World" button - calls server method
         frm.add_custom_button(__('Hello World'), () => {
             frappe.call({
-                method: 'amb_print.api.label_hello_world',
+                method: 'amb_print.amb_print.api.label_hello_world',
                 args: {
                     sales_order: frm.docname
                 },
