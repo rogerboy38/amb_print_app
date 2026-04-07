@@ -13,6 +13,7 @@ required_apps = ["frappe", "erpnext"]
 
 # DocType JS - Load custom JS for specific DocTypes
 doctype_js = {
+    "Batch AMB": "public/js/batch_amb_labels.js",
     "Sales Order": "public/js/sales_order_labels.js"
 }
 

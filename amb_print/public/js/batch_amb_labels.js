@@ -1,8 +1,9 @@
-// Phase 11: Label Printing - Sales Order Labels Button
-frappe.ui.form.on('Sales Order', {
+// Phase 11: Label Printing - Batch AMB Labels Button
+// Mirrors sales_order_labels.js for Batch AMB doctype
+frappe.ui.form.on('Batch AMB', {
     refresh(frm) {
         if (frm.is_new()) return;
-        
+
         // Helper function to download PDF
         const downloadPdf = function(printFormat) {
             frappe.call({
@@ -33,20 +34,20 @@ frappe.ui.form.on('Sales Order', {
                 }
             });
         };
-        
+
         // Label Logo 4 - for preprinted label sheets with logo (4-up)
         frm.add_custom_button(__('Label Logo 4'), () => {
             downloadPdf('Label Logo 4');
         }, __('Labels'));
-        
+
         // Label Blank 4 - for blank label sheets without logo (4-up)
         frm.add_custom_button(__('Label Blank 4'), () => {
             downloadPdf('Label Blank 4');
         }, __('Labels'));
-        
+
         // Label Small 8 - for small sample bags (8-up, 2x4)
-        frm.add_custom_button(__('Label Small'), () => {
-            downloadPdf('Label Small');
+        frm.add_custom_button(__('Label Small 8'), () => {
+            downloadPdf('Label Small 8');
         }, __('Labels'));
     }
 });
