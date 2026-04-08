@@ -47,9 +47,6 @@ frappe.ui.form.on('Sales Order', {
         frm.add_custom_button(__('Label Small 8'), () => {
             downloadPdf('Label Small 8');
         }, __('Labels'));
-        // Label Small  - for small sample bags (1-8, 2x4)
-        frm.add_custom_button(__('Label Small'), () => {
-            downloadPdf('Label Small');
-        }, __('Labels'));
+
     }
 });

@@ -133,7 +133,7 @@
                     <div class="field"><div class="field-label">Date</div><div class="field-value">{{ doc.transaction_date }}</div></div>
                 </div>
                 {% if doc.items %}{% set item = doc.items[0] %}
-                <div class="item-name">{{ item.item_name or item.item_code }}</div>
+                <div class="item-name">{{ (item.item_name or item.item_code)[:45] }}{% if (item.item_name or item.item_code)|length > 45 %}...{% endif %}</div>
                 <div class="row">
                     <div class="field"><div class="field-label">Qty</div><div class="field-value">{{ item.qty }} {{ item.uom }}</div></div>
                     <div class="field"><div class="field-label">PO</div><div class="field-value">{{ doc.po_no or "N/A" }}</div></div>
@@ -154,7 +154,7 @@
                     <div class="field"><div class="field-label">Date</div><div class="field-value">{{ doc.transaction_date }}</div></div>
                 </div>
                 {% if doc.items %}{% set item = doc.items[0] %}
-                <div class="item-name">{{ item.item_name or item.item_code }}</div>
+                <div class="item-name">{{ (item.item_name or item.item_code)[:45] }}{% if (item.item_name or item.item_code)|length > 45 %}...{% endif %}</div>
                 <div class="row">
                     <div class="field"><div class="field-label">Qty</div><div class="field-value">{{ item.qty }} {{ item.uom }}</div></div>
                     <div class="field"><div class="field-label">PO</div><div class="field-value">{{ doc.po_no or "N/A" }}</div></div>
@@ -171,7 +171,7 @@
                     <div class="field"><div class="field-label">Date</div><div class="field-value">{{ doc.transaction_date }}</div></div>
                 </div>
                 {% if doc.items %}{% set item = doc.items[0] %}
-                <div class="item-name">{{ item.item_name or item.item_code }}</div>
+                <div class="item-name">{{ (item.item_name or item.item_code)[:45] }}{% if (item.item_name or item.item_code)|length > 45 %}...{% endif %}</div>
                 <div class="row">
                     <div class="field"><div class="field-label">Qty</div><div class="field-value">{{ item.qty }} {{ item.uom }}</div></div>
                     <div class="field"><div class="field-label">PO</div><div class="field-value">{{ doc.po_no or "N/A" }}</div></div>
@@ -192,7 +192,7 @@
                     <div class="field"><div class="field-label">Date</div><div class="field-value">{{ doc.transaction_date }}</div></div>
                 </div>
                 {% if doc.items %}{% set item = doc.items[0] %}
-                <div class="item-name">{{ item.item_name or item.item_code }}</div>
+                <div class="item-name">{{ (item.item_name or item.item_code)[:45] }}{% if (item.item_name or item.item_code)|length > 45 %}...{% endif %}</div>
                 <div class="row">
                     <div class="field"><div class="field-label">Qty</div><div class="field-value">{{ item.qty }} {{ item.uom }}</div></div>
                     <div class="field"><div class="field-label">PO</div><div class="field-value">{{ doc.po_no or "N/A" }}</div></div>
@@ -209,7 +209,7 @@
                     <div class="field"><div class="field-label">Date</div><div class="field-value">{{ doc.transaction_date }}</div></div>
                 </div>
                 {% if doc.items %}{% set item = doc.items[0] %}
-                <div class="item-name">{{ item.item_name or item.item_code }}</div>
+                <div class="item-name">{{ (item.item_name or item.item_code)[:45] }}{% if (item.item_name or item.item_code)|length > 45 %}...{% endif %}</div>
                 <div class="row">
                     <div class="field"><div class="field-label">Qty</div><div class="field-value">{{ item.qty }} {{ item.uom }}</div></div>
                     <div class="field"><div class="field-label">PO</div><div class="field-value">{{ doc.po_no or "N/A" }}</div></div>
@@ -230,7 +230,7 @@
                     <div class="field"><div class="field-label">Date</div><div class="field-value">{{ doc.transaction_date }}</div></div>
                 </div>
                 {% if doc.items %}{% set item = doc.items[0] %}
-                <div class="item-name">{{ item.item_name or item.item_code }}</div>
+                <div class="item-name">{{ (item.item_name or item.item_code)[:45] }}{% if (item.item_name or item.item_code)|length > 45 %}...{% endif %}</div>
                 <div class="row">
                     <div class="field"><div class="field-label">Qty</div><div class="field-value">{{ item.qty }} {{ item.uom }}</div></div>
                     <div class="field"><div class="field-label">PO</div><div class="field-value">{{ doc.po_no or "N/A" }}</div></div>
@@ -247,7 +247,7 @@
                     <div class="field"><div class="field-label">Date</div><div class="field-value">{{ doc.transaction_date }}</div></div>
                 </div>
                 {% if doc.items %}{% set item = doc.items[0] %}
-                <div class="item-name">{{ item.item_name or item.item_code }}</div>
+                <div class="item-name">{{ (item.item_name or item.item_code)[:45] }}{% if (item.item_name or item.item_code)|length > 45 %}...{% endif %}</div>
                 <div class="row">
                     <div class="field"><div class="field-label">Qty</div><div class="field-value">{{ item.qty }} {{ item.uom }}</div></div>
                     <div class="field"><div class="field-label">PO</div><div class="field-value">{{ doc.po_no or "N/A" }}</div></div>
