@@ -1,0 +1,239 @@
+{% set page_width = "215.9mm" %}
+{% set page_height = "279.4mm" %}
+{% set label_width = "88.9mm" %}
+{% set label_height = "63.5mm" %}
+
+<style>
+    @page {
+        size: 215.9mm 279.4mm;
+        margin: 0;
+    }
+
+    html, body {
+        margin: 0;
+        padding: 0;
+        width: 215.9mm;
+        height: 279.4mm;
+        font-family: Arial, Helvetica, sans-serif;
+        background: #fff;
+    }
+
+    body {
+        overflow: hidden;
+    }
+
+    .sheet {
+        position: relative;
+        width: 215.9mm;
+        height: 279.4mm;
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        background: #fff;
+    }
+
+    .top-marker {
+        position: absolute;
+        top: 2mm;
+        font-size: 6pt;
+        line-height: 1;
+        color: #444;
+        font-weight: bold;
+        white-space: nowrap;
+    }
+
+    .left-marker {
+        position: absolute;
+        left: 2mm;
+        font-size: 6pt;
+        line-height: 1;
+        color: #444;
+        font-weight: bold;
+        white-space: nowrap;
+    }
+
+    .label-box {
+        position: absolute;
+        width: 88.9mm;
+        height: 63.5mm;
+        border: 0.25mm dashed #777;
+        box-sizing: border-box;
+    }
+
+    .label-id {
+        position: absolute;
+        top: 1mm;
+        right: 1mm;
+        font-size: 6pt;
+        line-height: 1;
+        color: #777;
+        font-weight: bold;
+        background: #fff;
+        padding: 0 0.5mm;
+    }
+
+    .crosshair-h {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 50%;
+        border-top: 0.15mm dotted #ccc;
+        transform: translateY(-50%);
+    }
+
+    .crosshair-v {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 50%;
+        border-left: 0.15mm dotted #ccc;
+        transform: translateX(-50%);
+    }
+
+    .origin-dot {
+        position: absolute;
+        width: 1.2mm;
+        height: 1.2mm;
+        border-radius: 50%;
+        background: #444;
+        top: 0.8mm;
+        left: 0.8mm;
+    }
+
+    .legend {
+        position: absolute;
+        left: 19.05mm;
+        top: 270mm;
+        font-size: 6pt;
+        color: #555;
+        line-height: 1.2;
+    }
+</style>
+
+<div class="sheet">
+
+    <!-- Top calibration markers -->
+    <div class="top-marker" style="left: 19.05mm;">A123456789</div>
+    <div class="top-marker" style="left: 27.94mm;">B123456789</div>
+    <div class="top-marker" style="left: 36.83mm;">C123456789</div>
+    <div class="top-marker" style="left: 45.72mm;">D123456789</div>
+    <div class="top-marker" style="left: 54.61mm;">E123456789</div>
+    <div class="top-marker" style="left: 63.50mm;">F123456789</div>
+    <div class="top-marker" style="left: 72.39mm;">G123456789</div>
+    <div class="top-marker" style="left: 81.28mm;">H123456789</div>
+    <div class="top-marker" style="left: 90.17mm;">I123456789</div>
+    <div class="top-marker" style="left: 99.06mm;">J123456789</div>
+    <div class="top-marker" style="left: 107.95mm;">K123456789</div>
+    <div class="top-marker" style="left: 116.84mm;">L123456789</div>
+    <div class="top-marker" style="left: 125.73mm;">M123456789</div>
+    <div class="top-marker" style="left: 134.62mm;">N123456789</div>
+    <div class="top-marker" style="left: 143.51mm;">O123456789</div>
+    <div class="top-marker" style="left: 152.40mm;">P123456789</div>
+    <div class="top-marker" style="left: 161.29mm;">Q123456789</div>
+    <div class="top-marker" style="left: 170.18mm;">R123456789</div>
+    <div class="top-marker" style="left: 179.07mm;">S123456789</div>
+    <div class="top-marker" style="left: 187.96mm;">T123456789</div>
+
+    <!-- Left calibration markers -->
+    <div class="left-marker" style="top: 12.7mm;">1</div>
+    <div class="left-marker" style="top: 19.05mm;">2</div>
+    <div class="left-marker" style="top: 25.4mm;">3</div>
+    <div class="left-marker" style="top: 31.75mm;">4</div>
+    <div class="left-marker" style="top: 38.1mm;">5</div>
+    <div class="left-marker" style="top: 44.45mm;">6</div>
+    <div class="left-marker" style="top: 50.8mm;">7</div>
+    <div class="left-marker" style="top: 57.15mm;">8</div>
+    <div class="left-marker" style="top: 63.5mm;">9</div>
+    <div class="left-marker" style="top: 69.85mm;">10</div>
+    <div class="left-marker" style="top: 76.2mm;">11</div>
+    <div class="left-marker" style="top: 82.55mm;">12</div>
+    <div class="left-marker" style="top: 88.9mm;">13</div>
+    <div class="left-marker" style="top: 95.25mm;">14</div>
+    <div class="left-marker" style="top: 101.6mm;">15</div>
+    <div class="left-marker" style="top: 107.95mm;">16</div>
+    <div class="left-marker" style="top: 114.3mm;">17</div>
+    <div class="left-marker" style="top: 120.65mm;">18</div>
+    <div class="left-marker" style="top: 127mm;">19</div>
+    <div class="left-marker" style="top: 133.35mm;">20</div>
+    <div class="left-marker" style="top: 139.7mm;">21</div>
+    <div class="left-marker" style="top: 146.05mm;">22</div>
+    <div class="left-marker" style="top: 152.4mm;">23</div>
+    <div class="left-marker" style="top: 158.75mm;">24</div>
+    <div class="left-marker" style="top: 165.1mm;">25</div>
+    <div class="left-marker" style="top: 171.45mm;">26</div>
+    <div class="left-marker" style="top: 177.8mm;">27</div>
+    <div class="left-marker" style="top: 184.15mm;">28</div>
+    <div class="left-marker" style="top: 190.5mm;">29</div>
+    <div class="left-marker" style="top: 196.85mm;">30</div>
+    <div class="left-marker" style="top: 203.2mm;">31</div>
+    <div class="left-marker" style="top: 209.55mm;">32</div>
+    <div class="left-marker" style="top: 215.9mm;">33</div>
+    <div class="left-marker" style="top: 222.25mm;">34</div>
+    <div class="left-marker" style="top: 228.6mm;">35</div>
+    <div class="left-marker" style="top: 234.95mm;">36</div>
+    <div class="left-marker" style="top: 241.3mm;">37</div>
+    <div class="left-marker" style="top: 247.65mm;">38</div>
+    <div class="left-marker" style="top: 254mm;">39</div>
+    <div class="left-marker" style="top: 260.35mm;">40</div>
+
+    <!-- Label boxes -->
+    <div class="label-box" style="left: 19.05mm; top: 12.7mm;">
+        <div class="origin-dot"></div>
+        <div class="crosshair-h"></div>
+        <div class="crosshair-v"></div>
+        <div class="label-id">A1</div>
+    </div>
+
+    <div class="label-box" style="left: 107.95mm; top: 12.7mm;">
+        <div class="origin-dot"></div>
+        <div class="crosshair-h"></div>
+        <div class="crosshair-v"></div>
+        <div class="label-id">B1</div>
+    </div>
+
+    <div class="label-box" style="left: 19.05mm; top: 76.2mm;">
+        <div class="origin-dot"></div>
+        <div class="crosshair-h"></div>
+        <div class="crosshair-v"></div>
+        <div class="label-id">A2</div>
+    </div>
+
+    <div class="label-box" style="left: 107.95mm; top: 76.2mm;">
+        <div class="origin-dot"></div>
+        <div class="crosshair-h"></div>
+        <div class="crosshair-v"></div>
+        <div class="label-id">B2</div>
+    </div>
+
+    <div class="label-box" style="left: 19.05mm; top: 139.7mm;">
+        <div class="origin-dot"></div>
+        <div class="crosshair-h"></div>
+        <div class="crosshair-v"></div>
+        <div class="label-id">A3</div>
+    </div>
+
+    <div class="label-box" style="left: 107.95mm; top: 139.7mm;">
+        <div class="origin-dot"></div>
+        <div class="crosshair-h"></div>
+        <div class="crosshair-v"></div>
+        <div class="label-id">B3</div>
+    </div>
+
+    <div class="label-box" style="left: 19.05mm; top: 203.2mm;">
+        <div class="origin-dot"></div>
+        <div class="crosshair-h"></div>
+        <div class="crosshair-v"></div>
+        <div class="label-id">A4</div>
+    </div>
+
+    <div class="label-box" style="left: 107.95mm; top: 203.2mm;">
+        <div class="origin-dot"></div>
+        <div class="crosshair-h"></div>
+        <div class="crosshair-v"></div>
+        <div class="label-id">B4</div>
+    </div>
+
+    <div class="legend">
+        Label Small 8 Calibration - Letter size - explicit mm coordinates
+    </div>
+</div>
