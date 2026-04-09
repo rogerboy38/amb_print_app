@@ -1,0 +1,159 @@
+{% set page_width = "215.9mm" %}
+{% set page_height = "279.4mm" %}
+{% set label_width = "82mm" %}
+{% set label_height = "58mm" %}
+{% set cols = 2 %}
+{% set rows = 4 %}
+
+{% set positions = ["A1", "B1", "A2", "B2", "A3", "B3", "A4", "B4"] %}
+{% set start_position = frappe.form_dict.get("start_position") or "A1" %}
+{% set label_qty = (frappe.form_dict.get("label_qty") or 8) | int %}
+
+{% if start_position not in positions %}
+    {% set start_position = "A1" %}
+{% endif %}
+
+{% if label_qty < 1 %}
+    {% set label_qty = 1 %}
+{% endif %}
+{% if label_qty > 8 %}
+    {% set label_qty = 8 %}
+{% endif %}
+
+{% set start_index = positions.index(start_position) %}
+
+{# Get linked Work Order data if available #}
+{% set work_order_data = None %}
+{% if doc.work_order_ref %}
+    {% set work_order_data = frappe.get_doc("Work Order", doc.work_order_ref) %}
+{% endif %}
+
+{# Get linked Sales Order data if available #}
+{% set sales_order_data = None %}
+{% if doc.sales_order_related %}
+    {% set sales_order_data = frappe.get_doc("Sales Order", doc.sales_order_related) %}
+{% endif %}
+
+<style>
+    @page {
+        size: 215.9mm 279.4mm;
+        margin: 0;
+    }
+    html, body {
+        margin: 0;
+        padding: 0;
+        width: 215.9mm;
+        height: 279.4mm;
+        font-family: Arial, Helvetica, sans-serif;
+        background: #fff;
+    }
+    body { overflow: hidden; }
+    .sheet {
+        position: relative;
+        width: 215.9mm;
+        height: 279.4mm;
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        background: #fff;
+    }
+    .label-cell {
+        position: absolute;
+        width: 82mm;
+        height: 58mm;
+        box-sizing: border-box;
+        overflow: hidden;
+    }
+    .label-content {
+        position: absolute;
+        top: 29mm;
+        left: 15mm;
+        width: 58mm;
+        height: 24mm;
+        box-sizing: border-box;
+        overflow: hidden;
+    }
+    .brand {
+        font-size: 9pt;
+        font-weight: 700;
+        color: #111;
+        line-height: 1.05;
+        margin: 0 0 2.2mm 0;
+        white-space: normal;
+        word-break: break-word;
+        overflow-wrap: anywhere;
+    }
+    .meta-row { width: 100%; overflow: hidden; margin: 0 0 2mm 0; }
+    .meta-block { float: left; width: 27mm; margin-right: 4mm; }
+    .meta-block.last { margin-right: 0; }
+    .meta-label { font-size: 5pt; font-weight: 700; text-transform: uppercase; color: #444; line-height: 1.05; margin: 0 0 0.4mm 0; }
+    .meta-value { font-size: 6.8pt; color: #111; line-height: 1.08; margin: 0; white-space: normal; word-break: break-word; overflow-wrap: anywhere; }
+    .item-name { font-size: 7.6pt; line-height: 1.05; font-weight: 700; color: #1d6b36; margin: 0 0 2mm 0; white-space: normal; word-break: break-word; overflow-wrap: anywhere; }
+    .small-row { width: 100%; overflow: hidden; margin: 0; }
+    .small-block { float: left; width: 27mm; margin-right: 4mm; }
+    .small-block.last { margin-right: 0; }
+    .small-label { font-size: 5pt; font-weight: 700; text-transform: uppercase; color: #444; line-height: 1.05; margin: 0 0 0.4mm 0; }
+    .small-value { font-size: 6.8pt; color: #111; line-height: 1.08; margin: 0; white-space: normal; word-break: break-word; overflow-wrap: anywhere; }
+    .position-marker { display: none; position: absolute; top: 1mm; right: 1mm; font-size: 5pt; color: #888; font-weight: 700; }
+</style>
+
+<div class="sheet">
+    {% for row in range(rows) %}
+        {% for col in range(cols) %}
+            {% set slot = row * cols + col %}
+            {% set position = positions[slot] %}
+            {% set relative_index = slot - start_index %}
+            {% set should_print = slot >= start_index and relative_index < label_qty %}
+
+            {% if col == 0 %}
+                {% set left_pos = "25mm" %}
+            {% else %}
+                {% set left_pos = "128mm" %}
+            {% endif %}
+
+            {% if row == 0 %}
+                {% set top_pos = "12mm" %}
+            {% elif row == 1 %}
+                {% set top_pos = "78mm" %}
+            {% elif row == 2 %}
+                {% set top_pos = "144mm" %}
+            {% else %}
+                {% set top_pos = "210mm" %}
+            {% endif %}
+
+            <div class="label-cell" style="left: {{ left_pos }}; top: {{ top_pos }};">
+                <div class="position-marker">{{ position }}</div>
+                {% if should_print %}
+                    <div class="label-content">
+                        {# Customer name from Sales Order or direct #}
+                        <p class="brand">{{ sales_order_data.customer_name if sales_order_data else doc.company or "" }}</p>
+
+                        <div class="meta-row">
+                            <div class="meta-block">
+                                <div class="meta-label">Batch</div>
+                                <div class="meta-value">{{ doc.name or "" }}</div>
+                            </div>
+                            <div class="meta-block last">
+                                <div class="meta-label">Date</div>
+                                <div class="meta-value">{{ doc.production_start_date or "" }}</div>
+                            </div>
+                        </div>
+
+                        <p class="item-name">{{ doc.item_name or doc.item_code or "" }}</p>
+
+                        <div class="small-row">
+                            <div class="small-block">
+                                <div class="small-label">Qty</div>
+                                <div class="small-value">{{ doc.batch_quantity or 0 }} {{ doc.uom or "" }}</div>
+                            </div>
+                            <div class="small-block last">
+                                <div class="small-label">Brix</div>
+                                <div class="meta-value">{{ doc.brix_level or "N/A" }}</div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+    {% endfor %}
+</div>
