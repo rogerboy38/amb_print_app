@@ -1,4 +1,5 @@
 // Phase 11: Label Printing - Sales Order Labels Button
+// V13.5.0: Added Label Management button with cell selection dialog
 frappe.ui.form.on('Sales Order', {
     refresh(frm) {
         if (frm.is_new()) return;
@@ -50,6 +51,18 @@ frappe.ui.form.on('Sales Order', {
                 fields: [
                     {
                         fieldtype: 'Select',
+                        fieldname: 'print_format',
+                        label: __('Print Format'),
+                        options: [
+                            'Label Small 8',
+                            'Label Logo 4',
+                            'Label Blank 4'
+                        ].join('\n'),
+                        default: 'Label Small 8',
+                        reqd: 1
+                    },
+                    {
+                        fieldtype: 'Select',
                         fieldname: 'start_position',
                         label: __('Start Position'),
                         options: [
@@ -89,7 +102,7 @@ frappe.ui.form.on('Sales Order', {
                         return;
                     }
 
-                    downloadPdf('Label Small 8', {
+                    downloadPdf(values.print_format, {
                         start_position: values.start_position,
                         label_qty: qty
                     });
@@ -100,6 +113,65 @@ frappe.ui.form.on('Sales Order', {
 
             dialog.show();
         };
+
+        // V13.5.0: Label Management - Opens new Label Management DocType with cell selection
+        frm.add_custom_button(__('Label Management'), () => {
+            const dialog = new frappe.ui.Dialog({
+                title: __('Label Management'),
+                fields: [
+                    {
+                        fieldtype: 'Select',
+                        fieldname: 'print_format',
+                        label: __('Print Format'),
+                        options: [
+                            'Label Small 8',
+                            'Label Logo 4',
+                            'Label Blank 4'
+                        ].join('\n'),
+                        default: 'Label Small 8',
+                        reqd: 1
+                    },
+                    {
+                        fieldtype: 'Select',
+                        fieldname: 'start_position',
+                        label: __('Start Position'),
+                        options: [
+                            'A1',
+                            'B1',
+                            'A2',
+                            'B2',
+                            'A3',
+                            'B3',
+                            'A4',
+                            'B4'
+                        ].join('\n'),
+                        default: 'A1',
+                        reqd: 1
+                    },
+                    {
+                        fieldtype: 'Int',
+                        fieldname: 'label_qty',
+                        label: __('Label Quantity'),
+                        default: 1,
+                        reqd: 1
+                    }
+                ],
+                primary_action_label: __('Create'),
+                primary_action(values) {
+                    frappe.new_doc('Label Management', {
+                        source_doctype: 'Sales Order',
+                        source_docname: frm.docname,
+                        print_format: values.print_format,
+                        start_position: values.start_position,
+                        label_qty: values.label_qty,
+                        status: 'Draft'
+                    });
+                    dialog.hide();
+                }
+            });
+
+            dialog.show();
+        }, __('Labels'));
 
         // Label Logo 4 - for preprinted label sheets with logo (4-up)
         frm.add_custom_button(__('Label Logo 4'), () => {
