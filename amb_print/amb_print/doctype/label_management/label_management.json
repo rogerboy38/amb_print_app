@@ -18,14 +18,14 @@
             "fieldname": "source_doctype",
             "fieldtype": "Select",
             "label": "Source DocType",
-            "options": "Sales Order\nDelivery Note\nSales Invoice\nPurchase Order\nPurchase Receipt",
+            "options": "Sales Order\nBatch AMB\nDelivery Note\nSales Invoice\nPurchase Order\nPurchase Receipt",
             "insert_after": null
         },
         {
             "fieldname": "source_docname",
             "fieldtype": "Dynamic Link",
             "label": "Source Document",
-            "dynamic_link_field": "source_doctype",
+            "options": "source_doctype",
             "insert_after": "source_doctype"
         },
         {
