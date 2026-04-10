@@ -2,7 +2,7 @@
     "name": "Label Management",
     "doctype": "DocType",
     "module": "Amb Print",
-    "autoname": "field:name",
+    "autoname": "format:LBL-MGMT-{#####}",
     "is_submittable": 0,
     "editable_grid": 1,
     "track_changes": 1,
@@ -16,14 +16,16 @@
         },
         {
             "fieldname": "source_doctype",
-            "fieldtype": "Data",
+            "fieldtype": "Select",
             "label": "Source DocType",
-            "insert_after": "amended_from"
+            "options": "Sales Order\nDelivery Note\nSales Invoice\nPurchase Order\nPurchase Receipt",
+            "insert_after": null
         },
         {
             "fieldname": "source_docname",
-            "fieldtype": "Data",
+            "fieldtype": "Dynamic Link",
             "label": "Source Document",
+            "dynamic_link_field": "source_doctype",
             "insert_after": "source_doctype"
         },
         {
