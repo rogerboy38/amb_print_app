@@ -1,0 +1,19 @@
+{
+ "creation": "2026-04-10 18:00:00",
+ "docstatus": 0,
+ "doctype": "Print Format",
+ "doc_type": "Sample Request AMB",
+ "format_data": null,
+ "html": null,
+ "idx": 0,
+ "module": "Amb Print",
+ "modified": "2026-04-10 18:00:00",
+ "modified_by": "Administrator",
+ "name": "Label Small 8 Sample Request",
+ "owner": "Administrator",
+ "print_format_builder": 0,
+ "print_format_builder_beta": 0,
+ "print_format_type": "Jinja",
+ "raw_printing": 0,
+ "standard": "Yes"
+}
