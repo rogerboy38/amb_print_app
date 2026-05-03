@@ -47,15 +47,15 @@
     }
     .label-content {
         position: absolute;
-        top: 3mm;
-        left: 3mm;
-        right: 3mm;
-        bottom: 3mm;
-        font-size: 6pt;
-        line-height: 1.2;
+        top: 2mm;
+        left: 2mm;
+        right: 2mm;
+        bottom: 2mm;
+        font-size: 5.5pt;
+        line-height: 1.1;
         display: flex;
         flex-direction: column;
-        gap: 1mm;
+        gap: 0.5mm;
     }
     .label-content .field-label {
         font-weight: bold;
@@ -114,7 +114,9 @@
                     <div class="field"><div class="field-label">Date</div><div class="field-value">{{ doc.transaction_date }}</div></div>
                 </div>
                 {% if doc.items %}{% set item = doc.items[0] %}
-                <div class="item-name">{{ item.item_name or item.item_code }}</div>
+                <div class="item-name">
+                {{ (item.item_name or item.item_code)[:45] }}{% if (item.item_name or item.item_code)|length > 45 %}...{% endif %}
+                </div>
                 <div class="row">
                     <div class="field"><div class="field-label">Qty</div><div class="field-value">{{ item.qty }} {{ item.uom }}</div></div>
                     <div class="field"><div class="field-label">PO</div><div class="field-value">{{ doc.po_no or "N/A" }}</div></div>
