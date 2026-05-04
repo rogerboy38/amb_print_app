@@ -13,7 +13,8 @@ required_apps = ["frappe", "erpnext"]
 
 # DocType JS - Load custom JS for specific DocTypes
 doctype_js = {
-    "Sales Order": "public/js/sales_order_labels.js"
+    "Sales Order": "public/js/sales_order_labels.js",
+    "Sample Request AMB": "public/js/sample_request_amb_labels.js"
 }
 
 # DocTypes
@@ -23,6 +24,13 @@ fixtures = [
         "filters": {
             "module": "AMB Print"
         }
+    },
+    {
+        "dt": "Custom Field",
+        "filters": [
+            ["dt", "=", "Sample Request AMB"],
+            ["fieldname", "in", ["section_labels_tab", "label_cells"]]
+        ]
     }
 ]
 

@@ -1,0 +1,23 @@
+[
+    {
+        "doctype": "Custom Field",
+        "name": "Sample Request AMB-section_labels_tab",
+        "dt": "Sample Request AMB",
+        "fieldname": "section_labels_tab",
+        "fieldtype": "Tab Break",
+        "label": "5. Etiquetas / Labels",
+        "insert_after": "samples",
+        "module": "Amb Print"
+    },
+    {
+        "doctype": "Custom Field",
+        "name": "Sample Request AMB-label_cells",
+        "dt": "Sample Request AMB",
+        "fieldname": "label_cells",
+        "fieldtype": "Table",
+        "options": "Sample Request AMB Label",
+        "label": "Label Cells / Celdas de Etiqueta",
+        "insert_after": "section_labels_tab",
+        "module": "Amb Print"
+    }
+]

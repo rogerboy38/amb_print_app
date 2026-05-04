@@ -1,0 +1,78 @@
+{
+    "doctype": "DocType",
+    "name": "Sample Request AMB Label",
+    "module": "Amb Print",
+    "istable": 1,
+    "is_child_table": 1,
+    "engine": "InnoDB",
+    "fields": [
+        {
+            "fieldname": "cell_position",
+            "fieldtype": "Select",
+            "label": "Cell / Celda",
+            "options": "A1\nB1\nA2\nB2\nA3\nB3\nA4\nB4",
+            "reqd": 1,
+            "in_list_view": 1,
+            "columns": 1
+        },
+        {
+            "fieldname": "parent_sample_idx",
+            "fieldtype": "Int",
+            "label": "Sample Row Idx",
+            "description": "1-based index of the source samples table row",
+            "in_list_view": 0
+        },
+        {
+            "fieldname": "item_name",
+            "fieldtype": "Data",
+            "label": "Item Name / Nombre Producto",
+            "in_list_view": 1,
+            "columns": 2
+        },
+        {
+            "fieldname": "lot",
+            "fieldtype": "Data",
+            "label": "LOTE",
+            "in_list_view": 1,
+            "columns": 1
+        },
+        {
+            "fieldname": "manufacture_date",
+            "fieldtype": "Data",
+            "label": "M.D.",
+            "in_list_view": 1,
+            "columns": 1
+        },
+        {
+            "fieldname": "expiration_date",
+            "fieldtype": "Data",
+            "label": "E.D.",
+            "in_list_view": 1,
+            "columns": 1
+        },
+        {
+            "fieldname": "net_weight",
+            "fieldtype": "Data",
+            "label": "Net Weight / Peso",
+            "in_list_view": 1,
+            "columns": 1
+        },
+        {
+            "fieldname": "sample_tag",
+            "fieldtype": "Select",
+            "label": "Sample Tag / Etiqueta Roja",
+            "options": "\nMicrobiological Analysis Sample\nCustomer Retention Sample\nDistributor Retention Sample\nAMB Wellness Retention\nExternal Lab Sample",
+            "in_list_view": 1,
+            "columns": 2
+        },
+        {
+            "fieldname": "is_active",
+            "fieldtype": "Check",
+            "label": "Active / Activo",
+            "default": "1",
+            "in_list_view": 1,
+            "columns": 1
+        }
+    ],
+    "modified": "2026-05-04 00:00:00.000000"
+}
