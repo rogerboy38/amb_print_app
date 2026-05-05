@@ -37,3 +37,36 @@ def generate_pdf_for_document(doctype, docname, print_format=None):
         "status": "success",
         "pdf_size": len(pdf)
     }
+
+
+@frappe.whitelist()
+def label_hello_world(sales_order):
+    """Phase 11 skeleton: test label button wiring from Sales Order."""
+    doc = frappe.get_doc("Sales Order", sales_order)
+    items_list = ', '.join([row.item_code for row in doc.items[:5]])
+    return f"Hello World from Sales Order {doc.name}\nCustomer: {doc.customer}\nFirst items: {items_list}"
+
+
+@frappe.whitelist()
+def print_label_pdf(doctype, docname, print_format):
+    """Generate and return PDF for label printing.
+    
+    BUG 93C fix: Use server-side method instead of direct API call to avoid whitelist issues.
+    """
+    from frappe.utils import sanitize_html
+    from frappe.utils.pdf import get_pdf
+    
+    # Get the HTML for the document using the specified print format
+    html = frappe.get_print(doctype, docname, print_format)
+    
+    # Generate PDF
+    pdf_content = get_pdf(html)
+    
+    # Return as base64 encoded file for download
+    import base64
+    return {
+        "doctype": "Sales Order",
+        "docname": docname,
+        "print_format": print_format,
+        "pdf_base64": base64.b64encode(pdf_content).decode('utf-8')
+    }

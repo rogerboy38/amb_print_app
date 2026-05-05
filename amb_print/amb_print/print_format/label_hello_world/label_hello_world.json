@@ -1,0 +1,20 @@
+{
+    "name": "Label Hello World",
+    "doctype": "Print Format",
+    "doc_type": "Sales Order",
+    "module": "AMB Print",
+    "standard": "Yes",
+    "custom_format": 1,
+    "print_format_type": "Jinja",
+    "raw_printing": 0,
+    "disabled": 0,
+    "default_print_language": "en",
+    "show_section_headings": 0,
+    "align_labels_right": 0,
+    "line_breaks": 0,
+    "css": "",
+    "margin_top": 0,
+    "margin_bottom": 0,
+    "margin_left": 0,
+    "margin_right": 0
+}
