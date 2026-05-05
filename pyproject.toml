@@ -5,6 +5,9 @@ description = "Print Format Migration Tool for ERPNext with Chromium PDF backend
 authors = [{name = "Sysmayal", email = "admin@sysmayal.com"}]
 requires-python = ">=3.14"
 license = {text = "MIT"}
+dependencies = [
+    "playwright>=1.50,<2.0",
+]
 
 [project.optional-dependencies]
 dev = ["pytest", "pytest-cov"]
