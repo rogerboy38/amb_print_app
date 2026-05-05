@@ -182,3 +182,80 @@ MIT
 
 **Version**: 1.0.0  
 **Updated**: January 2026
+
+## Independent PDF Generator (Playwright + Chromium)
+
+As of `feat/independent-pdf-generator`, the label-printing path no longer goes
+through `print_designer.pdf_generator.pdf.get_pdf` and never touches
+wkhtmltopdf. The button **Print Recommended Format** on Batch AMB calls
+`amb_print.amb_print.api.print_label_pdf`, which:
+
+1. Reads the Print Format's `.html` template directly from disk (bypassing
+   `frappe.get_print()`'s wrapper divs and 0.75in padding).
+2. Renders to PDF via headless Chromium driven by
+   [Playwright Python](https://playwright.dev/python/) — full @page CSS,
+   flexbox, SVG, web fonts, all working.
+3. Attaches the rendered PDF to the source doc as a public File (append).
+
+### One-time install
+
+```bash
+# from your bench root, as the `frappe` user
+cd ~/frappe-bench
+./env/bin/pip install 'playwright>=1.50,<2.0'
+
+# Install Chromium + system dependencies (run as root once for the deps,
+# then as frappe for the binary download)
+sudo ./env/bin/playwright install-deps chromium
+
+# Persistent path inside the bench tree (recommended over ~/.cache)
+export PLAYWRIGHT_BROWSERS_PATH=~/frappe-bench/playwright-browsers
+./env/bin/playwright install chromium
+```
+
+Add to your shell profile (or to the bench's `gunicorn.conf.py` env section):
+
+```bash
+export PLAYWRIGHT_BROWSERS_PATH=~/frappe-bench/playwright-browsers
+```
+
+### Verify
+
+```bash
+cd ~/frappe-bench
+./env/bin/python -c "
+from playwright.sync_api import sync_playwright
+with sync_playwright() as p:
+    b = p.chromium.launch(args=['--no-sandbox'])
+    pg = b.new_page()
+    pg.set_content('<h1>hello</h1>')
+    print(f'OK — {len(pg.pdf(format=\"Letter\"))} bytes')
+    b.close()
+"
+```
+
+Then from a Frappe site:
+
+```bash
+bench --site sandbox.sysmayal.cloud execute amb_print.amb_print.api.ping
+# expected: {"ok": True, "playwright_available": True, ...}
+```
+
+### Docker
+
+See `docker/Containerfile.amb_print` and the
+[INDEPENDENT_PDF_GENERATOR runbook](../docs/amb_print/INDEPENDENT_PDF_GENERATOR.md)
+for image build instructions and `docker-compose.yml` overrides
+(`shm_size: '1gb'`, `PLAYWRIGHT_BROWSERS_PATH=/opt/playwright-browsers`).
+
+### Disabling the wkhtmltopdf fallback
+
+If you want hard-fail behavior when Chromium is unreachable (decision #5
+flipped):
+
+```python
+# in your site_config.json, or via frappe.flags at runtime
+frappe.flags.amb_print_disable_wkhtml_fallback = True
+```
+
+…or set the env var `AMB_PRINT_DISABLE_WKHTML_FALLBACK=1`.
