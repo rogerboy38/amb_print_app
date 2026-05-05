@@ -1,0 +1,257 @@
+{% set page_width = "215.9mm" %}
+{% set page_height = "279.4mm" %}
+{% set label_width = "88.9mm" %}
+{% set label_height = "63.5mm" %}
+{% set cols = 2 %}
+{% set rows = 4 %}
+{% set margin_top = "12.7mm" %}
+{% set margin_left = "19.05mm" %}
+{% set gutter_h = "0mm" %}
+{% set gutter_v = "0mm" %}
+
+<style>
+    @page {
+        size: 215.9mm 279.4mm;
+        margin: 0;
+    }
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: Arial, Helvetica, sans-serif;
+    }
+    .label-sheet {
+        width: 215.9mm;
+        height: 279.4mm;
+        display: flex;
+        flex-direction: column;
+        padding: {{ margin_top }};
+        margin: 0;
+        box-sizing: border-box;
+    }
+    .label-row {
+        display: flex;
+        width: 100%;
+        height: {{ label_height }};
+        margin-bottom: {{ gutter_v }};
+    }
+    .label-cell {
+        width: {{ label_width }};
+        height: {{ label_height }};
+        box-sizing: border-box;
+        position: relative;
+        overflow: hidden;
+        margin-right: {{ gutter_h }};
+    }
+    .label-cell:last-child {
+        margin-right: 0;
+    }
+    .label-content {
+        position: absolute;
+        top: 3mm;
+        left: 3mm;
+        right: 3mm;
+        bottom: 3mm;
+        font-size: 6pt;
+        line-height: 1.2;
+        display: flex;
+        flex-direction: column;
+        gap: 1mm;
+    }
+    .label-content .field-label {
+        font-weight: bold;
+        font-size: 5pt;
+        color: #444;
+        text-transform: uppercase;
+        margin: 0;
+        line-height: 1.1;
+    }
+    .label-content .field-value {
+        font-size: 7pt;
+        color: #000;
+        margin: 0;
+        line-height: 1.1;
+    }
+    .label-content .item-name {
+        font-size: 7pt;
+        font-weight: bold;
+        color: #1a5c2a;
+        margin: 0;
+    }
+    .label-content .customer-name {
+        font-size: 7pt;
+        font-weight: bold;
+        margin: 0;
+    }
+    .label-content .row {
+        display: flex;
+        justify-content: space-between;
+    }
+    .label-content .row .field {
+        flex: 1;
+    }
+    .label-content .row .field:not(:last-child) {
+        margin-right: 2mm;
+    }
+    .position-label {
+        position: absolute;
+        top: 1mm;
+        right: 1mm;
+        font-size: 5pt;
+        color: #999;
+        font-weight: bold;
+    }
+</style>
+
+<div class="label-sheet">
+    {# Row 1 #}
+    <div class="label-row">
+        <div class="label-cell">
+            <div class="position-label">A1</div>
+            <div class="label-content">
+                <div class="customer-name">{{ doc.customer_name or doc.customer }}</div>
+                <div class="row">
+                    <div class="field"><div class="field-label">SO</div><div class="field-value">{{ doc.name }}</div></div>
+                    <div class="field"><div class="field-label">Date</div><div class="field-value">{{ doc.transaction_date }}</div></div>
+                </div>
+                {% if doc.items %}{% set item = doc.items[0] %}
+                <div class="item-name">{{ item.item_name or item.item_code }}</div>
+                <div class="row">
+                    <div class="field"><div class="field-label">Qty</div><div class="field-value">{{ item.qty }} {{ item.uom }}</div></div>
+                    <div class="field"><div class="field-label">PO</div><div class="field-value">{{ doc.po_no or "N/A" }}</div></div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="label-cell">
+            <div class="position-label">B1</div>
+            <div class="label-content">
+                <div class="customer-name">{{ doc.customer_name or doc.customer }}</div>
+                <div class="row">
+                    <div class="field"><div class="field-label">SO</div><div class="field-value">{{ doc.name }}</div></div>
+                    <div class="field"><div class="field-label">Date</div><div class="field-value">{{ doc.transaction_date }}</div></div>
+                </div>
+                {% if doc.items %}{% set item = doc.items[0] %}
+                <div class="item-name">{{ item.item_name or item.item_code }}</div>
+                <div class="row">
+                    <div class="field"><div class="field-label">Qty</div><div class="field-value">{{ item.qty }} {{ item.uom }}</div></div>
+                    <div class="field"><div class="field-label">PO</div><div class="field-value">{{ doc.po_no or "N/A" }}</div></div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    {# Row 2 #}
+    <div class="label-row">
+        <div class="label-cell">
+            <div class="position-label">A2</div>
+            <div class="label-content">
+                <div class="customer-name">{{ doc.customer_name or doc.customer }}</div>
+                <div class="row">
+                    <div class="field"><div class="field-label">SO</div><div class="field-value">{{ doc.name }}</div></div>
+                    <div class="field"><div class="field-label">Date</div><div class="field-value">{{ doc.transaction_date }}</div></div>
+                </div>
+                {% if doc.items %}{% set item = doc.items[0] %}
+                <div class="item-name">{{ item.item_name or item.item_code }}</div>
+                <div class="row">
+                    <div class="field"><div class="field-label">Qty</div><div class="field-value">{{ item.qty }} {{ item.uom }}</div></div>
+                    <div class="field"><div class="field-label">PO</div><div class="field-value">{{ doc.po_no or "N/A" }}</div></div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="label-cell">
+            <div class="position-label">B2</div>
+            <div class="label-content">
+                <div class="customer-name">{{ doc.customer_name or doc.customer }}</div>
+                <div class="row">
+                    <div class="field"><div class="field-label">SO</div><div class="field-value">{{ doc.name }}</div></div>
+                    <div class="field"><div class="field-label">Date</div><div class="field-value">{{ doc.transaction_date }}</div></div>
+                </div>
+                {% if doc.items %}{% set item = doc.items[0] %}
+                <div class="item-name">{{ item.item_name or item.item_code }}</div>
+                <div class="row">
+                    <div class="field"><div class="field-label">Qty</div><div class="field-value">{{ item.qty }} {{ item.uom }}</div></div>
+                    <div class="field"><div class="field-label">PO</div><div class="field-value">{{ doc.po_no or "N/A" }}</div></div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    {# Row 3 #}
+    <div class="label-row">
+        <div class="label-cell">
+            <div class="position-label">A3</div>
+            <div class="label-content">
+                <div class="customer-name">{{ doc.customer_name or doc.customer }}</div>
+                <div class="row">
+                    <div class="field"><div class="field-label">SO</div><div class="field-value">{{ doc.name }}</div></div>
+                    <div class="field"><div class="field-label">Date</div><div class="field-value">{{ doc.transaction_date }}</div></div>
+                </div>
+                {% if doc.items %}{% set item = doc.items[0] %}
+                <div class="item-name">{{ item.item_name or item.item_code }}</div>
+                <div class="row">
+                    <div class="field"><div class="field-label">Qty</div><div class="field-value">{{ item.qty }} {{ item.uom }}</div></div>
+                    <div class="field"><div class="field-label">PO</div><div class="field-value">{{ doc.po_no or "N/A" }}</div></div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="label-cell">
+            <div class="position-label">B3</div>
+            <div class="label-content">
+                <div class="customer-name">{{ doc.customer_name or doc.customer }}</div>
+                <div class="row">
+                    <div class="field"><div class="field-label">SO</div><div class="field-value">{{ doc.name }}</div></div>
+                    <div class="field"><div class="field-label">Date</div><div class="field-value">{{ doc.transaction_date }}</div></div>
+                </div>
+                {% if doc.items %}{% set item = doc.items[0] %}
+                <div class="item-name">{{ item.item_name or item.item_code }}</div>
+                <div class="row">
+                    <div class="field"><div class="field-label">Qty</div><div class="field-value">{{ item.qty }} {{ item.uom }}</div></div>
+                    <div class="field"><div class="field-label">PO</div><div class="field-value">{{ doc.po_no or "N/A" }}</div></div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    {# Row 4 #}
+    <div class="label-row">
+        <div class="label-cell">
+            <div class="position-label">A4</div>
+            <div class="label-content">
+                <div class="customer-name">{{ doc.customer_name or doc.customer }}</div>
+                <div class="row">
+                    <div class="field"><div class="field-label">SO</div><div class="field-value">{{ doc.name }}</div></div>
+                    <div class="field"><div class="field-label">Date</div><div class="field-value">{{ doc.transaction_date }}</div></div>
+                </div>
+                {% if doc.items %}{% set item = doc.items[0] %}
+                <div class="item-name">{{ item.item_name or item.item_code }}</div>
+                <div class="row">
+                    <div class="field"><div class="field-label">Qty</div><div class="field-value">{{ item.qty }} {{ item.uom }}</div></div>
+                    <div class="field"><div class="field-label">PO</div><div class="field-value">{{ doc.po_no or "N/A" }}</div></div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="label-cell">
+            <div class="position-label">B4</div>
+            <div class="label-content">
+                <div class="customer-name">{{ doc.customer_name or doc.customer }}</div>
+                <div class="row">
+                    <div class="field"><div class="field-label">SO</div><div class="field-value">{{ doc.name }}</div></div>
+                    <div class="field"><div class="field-label">Date</div><div class="field-value">{{ doc.transaction_date }}</div></div>
+                </div>
+                {% if doc.items %}{% set item = doc.items[0] %}
+                <div class="item-name">{{ item.item_name or item.item_code }}</div>
+                <div class="row">
+                    <div class="field"><div class="field-label">Qty</div><div class="field-value">{{ item.qty }} {{ item.uom }}</div></div>
+                    <div class="field"><div class="field-label">PO</div><div class="field-value">{{ doc.po_no or "N/A" }}</div></div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>

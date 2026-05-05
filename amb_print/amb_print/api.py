@@ -139,10 +139,22 @@ def ping() -> dict:
 
 
 # =============================================================================
+# Public: label_hello_world (Phase 11 skeleton — Sales Order)
+# =============================================================================
+
+@frappe.whitelist()
+def label_hello_world(sales_order):
+    """Phase 11 skeleton: test label button wiring from Sales Order."""
+    doc = frappe.get_doc("Sales Order", sales_order)
+    items_list = ', '.join([row.item_code for row in doc.items[:5]])
+    return f"Hello World from Sales Order {doc.name}\nCustomer: {doc.customer}\nFirst items: {items_list}"
+
+
+# =============================================================================
 # FUTURE @whitelist METHODS GO BELOW
 # =============================================================================
-# v14.0.0 is a clean cut — only `print_label_pdf` and `ping` are exposed.
-# Add new @whitelist methods here as the v14.x line evolves (Sample Request
-# AMB labels, BRL barrel labels, batch QR labels for warehouse pick lists,
-# etc.) Keep them small — heavy lifting belongs in `amb_print.label.*` and
-# `amb_print.pdf.*`, this file stays a thin facade.
+# v14.0.0 is a clean cut — `print_label_pdf`, `ping`, and `label_hello_world`
+# are exposed. Add new @whitelist methods here as the v14.x line evolves
+# (Sample Request AMB labels, BRL barrel labels, batch QR labels for warehouse
+# pick lists, etc.) Keep them small — heavy lifting belongs in
+# `amb_print.label.*` and `amb_print.pdf.*`, this file stays a thin facade.
