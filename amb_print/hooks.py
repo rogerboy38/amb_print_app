@@ -46,3 +46,9 @@ jenv = {
 
 # Installation
 after_install = "amb_print.install.after_install"
+
+# Independent PDF Generator: install Chromium binary on app install
+after_install = "amb_print.amb_print.install.after_install"
+
+# Independent PDF Generator: install Chromium binary on app install
+after_install = "amb_print.amb_print.install.after_install"
