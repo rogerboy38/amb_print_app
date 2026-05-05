@@ -82,3 +82,4 @@ migrations/
 instance/
 .webassets-cache
 .sass-cache
+*.bak.*
