@@ -1,27 +1,34 @@
 {# Label 4 (Container)
-=========================
-Target doctype: Batch AMB
-Iterates:       doc.container_barrels (Container Barrels child rows)
-Filter:         label_is_active == 1 (matches the SMP variant)
-Layout:         Letter portrait (215.9mm x 279.4mm), 2 columns x 2 rows = 4 cells/page
-Pagination:     when more than 4 active barrels, page-break-after.
-Quantity:       AUTOMATIC from active row count (no manual label_qty needed).
+   =========================
+   Target doctype: Batch AMB
+   Iterates:       doc.container_barrels (Container Barrels child rows)
+   Filter:         label_is_active == 1
+   Layout:         Letter portrait (215.9mm x 279.4mm), 2 cols x 2 rows = 4 cells/page
+   Pagination:     page-break-after every 4 active barrels.
 
-Per cell content (centered, BARENTZ-UK barrel reference):
-  1. Item name (bold black, prominent)
-  2. LOTE: <lot>
-  3. M.D. <date>  E.D. <date>
-  4. NET WEIGHT: <kg> (auto unit)
-  5. PACKAGING: <packaging_type>
-  6. SERIAL: <barrel_serial_number>  (HRI form, also encoded in barcode)
-  7. Code 128 barcode of barrel_serial_number (HRI text drawn by the lib)
-  8. Sample tag (red bold uppercase, only when set)
-  9. "PRODUCT OF MEXICO" (bold footer)
+   Per cell content (matches ETIQUETAS AMB.pdf — English barrel labels):
+     1. EXPORTER AND MANUFACTURER (static)
+     2. CONSIGNE : <consignee/customer>
+     3. PRODUCT : <item> ORGANIC
+     4. LOT : <lot>
+     5. M.D. / E.D.
+     6. P.O. <po>
+     7. NET WEIGHT
+     8. AMB CONTROL NUMBER : # <ctl>
+     9. Code 128 barcode of barrel serial (rendered via JsBarcode, in-browser)
+    10. ECOCERT certification footer (static, 3 lines)
 
-Barcode rendering: python-barcode → inline SVG via
-  amb_print.amb_print.utils.barcode.code128_svg
-The function returns "" for empty serials so empty/skipped rows
-print no barcode without breaking the cell layout.
+   FIELD-NAME GUESSES (designer should verify in Frappe desk):
+     doc.consignee | doc.customer | doc.customer_name        -> CONSIGNE
+     doc.po_no | doc.purchase_order | doc.po_number          -> P.O.
+     doc.amb_control_number | doc.control_number             -> AMB CTL #
+     row.label_item_name                                      -> PRODUCT
+     row.label_lot                                            -> LOT
+     row.label_manufacture_date / row.label_expiration_date   -> M.D. / E.D.
+     row.net_weight                                           -> NET WEIGHT (kg)
+     row.barrel_serial_number                                 -> barcode value
+   If any of these is wrong, the literal placeholder text shows up on the label.
+   Edit this file via Frappe desk -> Print Format -> Label 4 (Container) -> html.
 #}
 
 {% set _all_rows = (doc.container_barrels or []) %}
@@ -29,162 +36,137 @@ print no barcode without breaking the cell layout.
 {% set _per_page = 4 %}
 {% set _total = _rows | length %}
 {% set _pages = ((_total + _per_page - 1) // _per_page) if _total else 1 %}
-{% set _code128 = frappe.get_attr("amb_print.amb_print.utils.barcode.code128_svg") %}
+
+{# Batch-level constants — fall back through field-name candidates #}
+{% set _consigne = doc.consignee or doc.customer or doc.customer_name or "[CONSIGNE field missing]" %}
+{% set _po       = doc.po_no or doc.purchase_order or doc.po_number or "[P.O. field missing]" %}
+{% set _amb_ctl  = doc.amb_control_number or doc.control_number or doc.amb_ctl_no or "[AMB CTL field missing]" %}
+
+<!-- JsBarcode CDN: Chromium evaluates this before PDF capture. -->
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
 
 <style>
-    @page {
-        size: 215.9mm 279.4mm;
-        margin: 0;
-    }
-    html, body {
-        margin: 0;
-        padding: 0;
-        font-family: Arial, Helvetica, sans-serif;
-    }
-    .label-sheet {
-        width: 215.9mm;
-        height: 279.4mm;
-        display: flex;
-        flex-direction: column;
-        padding: 5.2mm 2.95mm;
-        margin: 0;
-        box-sizing: border-box;
-        page-break-after: always;
-    }
-    .label-sheet:last-child {
-        page-break-after: auto;
-    }
-    .label-row {
-        display: flex;
-        width: 100%;
-        height: 134.5mm;
-    }
-    .label-cell {
-        width: 105mm;
-        height: 134.5mm;
-        box-sizing: border-box;
-        position: relative;
-        overflow: hidden;
-        border: 1px dashed #999;
-    }
-    .empty-cell {
-        border-style: dashed;
-        border-color: #ccc;
-    }
-    .label-content {
-        position: absolute;
-        top: 5mm;
-        left: 5mm;
-        right: 5mm;
-        bottom: 5mm;
-        font-size: 10pt;
-        line-height: 1.3;
-        text-align: center;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-    }
-    .label-content > div {
-        margin: 0;
-    }
-    .label-content .item-name {
-        font-size: 12pt;
-        font-weight: bold;
-        color: #000;
-        line-height: 1.2;
-        margin: 0 0 1.5mm 0;
-    }
-    .label-content .lot,
-    .label-content .dates,
-    .label-content .net-weight,
-    .label-content .packaging,
-    .label-content .serial {
-        font-size: 10pt;
-        margin: 0;
-    }
-    .label-content .serial {
-        font-family: 'Courier New', Courier, monospace;
-        font-size: 9pt;
-        word-break: break-all;
-    }
-    .label-content .barcode {
-        margin: 1.5mm 0 0 0;
-    }
-    .label-content .barcode svg {
-        max-width: 90mm;
-        max-height: 18mm;
-        height: auto;
-        display: block;
-        margin: 0 auto;
-    }
-    .label-content .sample-tag {
-        font-size: 10pt;
-        font-weight: bold;
-        color: #c00000;
-        text-transform: uppercase;
-        margin: 0.5mm 0 0 0;
-    }
-    .label-content .footer-product {
-        font-size: 9pt;
-        font-weight: bold;
-        margin: 0;
-    }
-    .empty-cell .label-content {
-        display: none;
-    }
+  @page { size: 215.9mm 279.4mm; margin: 0; }
+  html, body {
+    margin: 0; padding: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .label-sheet {
+    width: 215.9mm; height: 279.4mm;
+    display: flex; flex-direction: column;
+    padding: 5mm 5mm;
+    box-sizing: border-box;
+    page-break-after: always;
+  }
+  .label-sheet:last-child { page-break-after: auto; }
+  .label-row {
+    display: flex;
+    width: 100%; height: 134.7mm;
+  }
+  .label-cell {
+    width: 102.95mm; height: 134.7mm;
+    box-sizing: border-box;
+    position: relative;
+    overflow: hidden;
+    border: 1px dashed #999;
+    margin: 0;
+  }
+  .label-cell + .label-cell { margin-left: 0; }
+  .empty-cell { border-color: #ddd; }
+  .empty-cell .label-content { display: none; }
+  .label-content {
+    position: absolute;
+    top: 5mm; left: 5mm; right: 5mm; bottom: 5mm;
+    font-size: 9pt;
+    line-height: 1.35;
+    color: #000;
+  }
+  .label-content > div { margin: 0; }
+  .label-content .field-block { margin-bottom: 0.3mm; }
+  .label-content strong { font-weight: bold; }
+  .label-content .barcode-area {
+    margin-top: 3mm;
+    text-align: center;
+  }
+  .label-content .barcode-area svg {
+    width: 75mm; height: 16mm;
+    display: block;
+    margin: 0 auto;
+  }
+  .label-content .ecocert {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    font-size: 7.5pt;
+    line-height: 1.2;
+    text-align: center;
+    margin: 0;
+  }
 </style>
-
-{% macro fmt_weight(net_kg) -%}
-    {%- set nk = net_kg or 0 -%}
-    {%- if nk > 0 and nk < 1 -%}
-        {{ ((nk * 1000) | round(0) | int) }} g
-    {%- else -%}
-        {{ "%.3f"|format(nk) }} kg
-    {%- endif -%}
-{%- endmacro %}
 
 {% for page_idx in range(_pages) %}
 <div class="label-sheet">
-    {% set _start = page_idx * _per_page %}
-    {% for grid_pos in range(_per_page) %}
-        {% if grid_pos % 2 == 0 %}
-            {% if grid_pos > 0 %}</div>{% endif %}
-            <div class="label-row">
-        {% endif %}
-        {% set row_idx = _start + grid_pos %}
-        {% set row = _rows[row_idx] if row_idx < _total else None %}
-        <div class="label-cell{% if row is none %} empty-cell{% endif %}">
-            {% if row %}
-            <div class="label-content">
-                <div>
-                    <div class="item-name">{{ row.label_item_name or "" }}</div>
-                    <div class="lot">LOTE: {{ row.label_lot or "" }}</div>
-                    <div class="dates">M.D. {{ row.label_manufacture_date or "" }} &nbsp;&nbsp; E.D. {{ row.label_expiration_date or "" }}</div>
-                    <div class="net-weight">NET WEIGHT: {{ fmt_weight(row.net_weight) }}</div>
-                    {% if row.packaging_type %}
-                    <div class="packaging">PACKAGING: {{ row.packaging_type }}</div>
-                    {% endif %}
-                    <div class="serial">SERIAL: {{ row.barrel_serial_number or "" }}</div>
-                </div>
-                <div>
-                    <div class="barcode">{{ _code128(row.barrel_serial_number) | safe }}</div>
-                    {% if row.label_sample_tag %}
-                    <div class="sample-tag">{{ row.label_sample_tag }}</div>
-                    {% endif %}
-                    <div class="footer-product">PRODUCT OF MEXICO</div>
-                </div>
-            </div>
-            {% endif %}
+  {% set _start = page_idx * _per_page %}
+  {% for grid_pos in range(_per_page) %}
+    {% if grid_pos % 2 == 0 %}
+      {% if grid_pos > 0 %}</div>{% endif %}
+      <div class="label-row">
+    {% endif %}
+    {% set row_idx = _start + grid_pos %}
+    {% set row = _rows[row_idx] if row_idx < _total else None %}
+    <div class="label-cell{% if row is none %} empty-cell{% endif %}">
+      {% if row %}
+        <div class="label-content">
+          <div class="field-block">EXPORTER AND MANUFACTURER:</div>
+          <div class="field-block"><strong>AGROMAYAL BOTANICA S.A. DE C.V.</strong></div>
+          <div class="field-block">CONSIGNE : {{ _consigne }}</div>
+          <div class="field-block">PRODUCT : {{ row.label_item_name or "" }} ORGANIC</div>
+          <div class="field-block">LOT : {{ row.label_lot or "" }}</div>
+          <div class="field-block">M.D. {{ row.label_manufacture_date or "" }} &nbsp;&nbsp; DD/MM/YY</div>
+          <div class="field-block">E.D. {{ row.label_expiration_date or "" }} &nbsp;&nbsp; DD/MM/YY</div>
+          <div class="field-block">P.O. {{ _po }}</div>
+          <div class="field-block">NET WEIGHT : {{ "%.1f"|format(row.net_weight or 0) }} KGS.</div>
+          <div class="field-block">AMB CONTROL NUMBER : # {{ _amb_ctl }}</div>
+
+          <div class="barcode-area">
+            <svg class="barcode"
+                 jsbarcode-value="{{ row.barrel_serial_number or row.serial_no or row.name or '' }}"
+                 jsbarcode-format="CODE128"
+                 jsbarcode-height="60"
+                 jsbarcode-width="2"
+                 jsbarcode-fontsize="14"
+                 jsbarcode-margin="0"
+                 jsbarcode-displayvalue="true"></svg>
+          </div>
+
+          <div class="ecocert">
+            CERTIFIED AS 100% ORGANIC<br>
+            BY ECOCERT GREENLIFE ACCORDING TO<br>
+            COSMOS STANDARD
+          </div>
         </div>
-        {% if grid_pos == _per_page - 1 %}</div>{% endif %}
-    {% endfor %}
+      {% endif %}
+    </div>
+    {% if grid_pos == _per_page - 1 %}</div>{% endif %}
+  {% endfor %}
 </div>
 {% endfor %}
 
 {% if _total == 0 %}
 <div style="padding: 30mm; font-family: Arial; font-size: 11pt; color: #666; text-align: center;">
-    No active label rows on this Batch AMB.<br><br>
-    Click <b>Generate Label Cells / Generar Etiquetas</b> and ensure each Container Barrel row has
-    <b>Print Label / Imprimir = checked</b>.
+  No active label rows on this Batch AMB.<br><br>
+  Click <b>Generate Label Cells / Generar Etiquetas</b> and ensure each Container Barrel row has
+  <b>Print Label / Imprimir = checked</b>.
 </div>
 {% endif %}
+
+<script>
+  // Render all CODE128 barcodes after DOM ready, before Chromium captures PDF.
+  // Playwright's wait_until=networkidle gives this script time to execute.
+  document.addEventListener('DOMContentLoaded', function() {
+    if (typeof JsBarcode === 'function') {
+      JsBarcode('.barcode').init();
+    }
+  });
+</script>
