@@ -1,0 +1,190 @@
+{# Label 4 (Container)
+=========================
+Target doctype: Batch AMB
+Iterates:       doc.container_barrels (Container Barrels child rows)
+Filter:         label_is_active == 1 (matches the SMP variant)
+Layout:         Letter portrait (215.9mm x 279.4mm), 2 columns x 2 rows = 4 cells/page
+Pagination:     when more than 4 active barrels, page-break-after.
+Quantity:       AUTOMATIC from active row count (no manual label_qty needed).
+
+Per cell content (centered, BARENTZ-UK barrel reference):
+  1. Item name (bold black, prominent)
+  2. LOTE: <lot>
+  3. M.D. <date>  E.D. <date>
+  4. NET WEIGHT: <kg> (auto unit)
+  5. PACKAGING: <packaging_type>
+  6. SERIAL: <barrel_serial_number>  (HRI form, also encoded in barcode)
+  7. Code 128 barcode of barrel_serial_number (HRI text drawn by the lib)
+  8. Sample tag (red bold uppercase, only when set)
+  9. "PRODUCT OF MEXICO" (bold footer)
+
+Barcode rendering: python-barcode → inline SVG via
+  amb_print.amb_print.utils.barcode.code128_svg
+The function returns "" for empty serials so empty/skipped rows
+print no barcode without breaking the cell layout.
+#}
+
+{% set _all_rows = (doc.container_barrels or []) %}
+{% set _rows = _all_rows | selectattr("label_is_active", "equalto", 1) | list %}
+{% set _per_page = 4 %}
+{% set _total = _rows | length %}
+{% set _pages = ((_total + _per_page - 1) // _per_page) if _total else 1 %}
+{% set _code128 = frappe.get_attr("amb_print.amb_print.utils.barcode.code128_svg") %}
+
+<style>
+    @page {
+        size: 215.9mm 279.4mm;
+        margin: 0;
+    }
+    html, body {
+        margin: 0;
+        padding: 0;
+        font-family: Arial, Helvetica, sans-serif;
+    }
+    .label-sheet {
+        width: 215.9mm;
+        height: 279.4mm;
+        display: flex;
+        flex-direction: column;
+        padding: 5.2mm 2.95mm;
+        margin: 0;
+        box-sizing: border-box;
+        page-break-after: always;
+    }
+    .label-sheet:last-child {
+        page-break-after: auto;
+    }
+    .label-row {
+        display: flex;
+        width: 100%;
+        height: 134.5mm;
+    }
+    .label-cell {
+        width: 105mm;
+        height: 134.5mm;
+        box-sizing: border-box;
+        position: relative;
+        overflow: hidden;
+        border: 1px dashed #999;
+    }
+    .empty-cell {
+        border-style: dashed;
+        border-color: #ccc;
+    }
+    .label-content {
+        position: absolute;
+        top: 5mm;
+        left: 5mm;
+        right: 5mm;
+        bottom: 5mm;
+        font-size: 10pt;
+        line-height: 1.3;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+    .label-content > div {
+        margin: 0;
+    }
+    .label-content .item-name {
+        font-size: 12pt;
+        font-weight: bold;
+        color: #000;
+        line-height: 1.2;
+        margin: 0 0 1.5mm 0;
+    }
+    .label-content .lot,
+    .label-content .dates,
+    .label-content .net-weight,
+    .label-content .packaging,
+    .label-content .serial {
+        font-size: 10pt;
+        margin: 0;
+    }
+    .label-content .serial {
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 9pt;
+        word-break: break-all;
+    }
+    .label-content .barcode {
+        margin: 1.5mm 0 0 0;
+    }
+    .label-content .barcode svg {
+        max-width: 90mm;
+        max-height: 18mm;
+        height: auto;
+        display: block;
+        margin: 0 auto;
+    }
+    .label-content .sample-tag {
+        font-size: 10pt;
+        font-weight: bold;
+        color: #c00000;
+        text-transform: uppercase;
+        margin: 0.5mm 0 0 0;
+    }
+    .label-content .footer-product {
+        font-size: 9pt;
+        font-weight: bold;
+        margin: 0;
+    }
+    .empty-cell .label-content {
+        display: none;
+    }
+</style>
+
+{% macro fmt_weight(net_kg) -%}
+    {%- set nk = net_kg or 0 -%}
+    {%- if nk > 0 and nk < 1 -%}
+        {{ ((nk * 1000) | round(0) | int) }} g
+    {%- else -%}
+        {{ "%.3f"|format(nk) }} kg
+    {%- endif -%}
+{%- endmacro %}
+
+{% for page_idx in range(_pages) %}
+<div class="label-sheet">
+    {% set _start = page_idx * _per_page %}
+    {% for grid_pos in range(_per_page) %}
+        {% if grid_pos % 2 == 0 %}
+            {% if grid_pos > 0 %}</div>{% endif %}
+            <div class="label-row">
+        {% endif %}
+        {% set row_idx = _start + grid_pos %}
+        {% set row = _rows[row_idx] if row_idx < _total else None %}
+        <div class="label-cell{% if row is none %} empty-cell{% endif %}">
+            {% if row %}
+            <div class="label-content">
+                <div>
+                    <div class="item-name">{{ row.label_item_name or "" }}</div>
+                    <div class="lot">LOTE: {{ row.label_lot or "" }}</div>
+                    <div class="dates">M.D. {{ row.label_manufacture_date or "" }} &nbsp;&nbsp; E.D. {{ row.label_expiration_date or "" }}</div>
+                    <div class="net-weight">NET WEIGHT: {{ fmt_weight(row.net_weight) }}</div>
+                    {% if row.packaging_type %}
+                    <div class="packaging">PACKAGING: {{ row.packaging_type }}</div>
+                    {% endif %}
+                    <div class="serial">SERIAL: {{ row.barrel_serial_number or "" }}</div>
+                </div>
+                <div>
+                    <div class="barcode">{{ _code128(row.barrel_serial_number) | safe }}</div>
+                    {% if row.label_sample_tag %}
+                    <div class="sample-tag">{{ row.label_sample_tag }}</div>
+                    {% endif %}
+                    <div class="footer-product">PRODUCT OF MEXICO</div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        {% if grid_pos == _per_page - 1 %}</div>{% endif %}
+    {% endfor %}
+</div>
+{% endfor %}
+
+{% if _total == 0 %}
+<div style="padding: 30mm; font-family: Arial; font-size: 11pt; color: #666; text-align: center;">
+    No active label rows on this Batch AMB.<br><br>
+    Click <b>Generate Label Cells / Generar Etiquetas</b> and ensure each Container Barrel row has
+    <b>Print Label / Imprimir = checked</b>.
+</div>
+{% endif %}
