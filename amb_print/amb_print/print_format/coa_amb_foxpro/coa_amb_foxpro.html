@@ -28,11 +28,11 @@ Verified field bindings (PROD schema 2026-06-10):
     table.coa-params { width: 100%; border-collapse: collapse; margin-top: 6px; }
     table.coa-params thead th {
         border: 1px solid #000; border-left: none; border-right: none;
-        text-align: left; font-weight: bold; font-size: 9.5pt; padding: 5px 6px;
+        text-align: left; font-weight: bold; font-size: 9.5pt; padding: 5px 6px !important;
     }
     table.coa-params thead th:first-child { border-left: 1px solid #000; }
     table.coa-params thead th:last-child { border-right: 1px solid #000; }
-    table.coa-params td { border: none; padding: 4.5px 6px; font-size: 9.5pt; }
+    table.coa-params td { border: none; padding: 4.5px 6px !important; font-size: 9.5pt; }
     .coa-titlerow td { font-weight: bold; padding-top: 8px !important; }
     .coa-footnote { font-size: 8.5pt; margin-top: 8px; }
     .coa-dates { font-size: 9.5pt; margin-top: 14px; line-height: 1.5; }
@@ -49,6 +49,8 @@ Verified field bindings (PROD schema 2026-06-10):
 {%- set sig = doc.autorizacion
         or (frappe.db.get_value("User", doc.approved_by, "signature_image") if doc.approved_by else None)
         or (frappe.db.get_value("User", doc.approved_by, "user_image") if doc.approved_by else None) -%}
+{#- guard: UI placeholder path is not a signature; broken img = hard PDF failure on wkhtmltopdf -#}
+{%- if sig and "placeholder" in sig %}{% set sig = None %}{% endif -%}
 
 {%- macro page_header() -%}
 <table class="coa-header"><tr>
