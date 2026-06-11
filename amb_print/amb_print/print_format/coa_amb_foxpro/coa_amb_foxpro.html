@@ -70,9 +70,10 @@ Verified field bindings (PROD schema 2026-06-10):
 {% if doc.cas_number %}<div class="coa-subline">CAS NUMBER : {{ doc.cas_number }}</div>{% endif %}
 <table class="coa-identity">
     <tr><td class="lbl">PRODUCT NAME</td><td>{{ (doc.item_name or "") | upper }}</td></tr>
-    <tr><td class="lbl">LOT CODE</td><td>{{ doc.batch_reference or "" }}</td></tr>
-    {% if batch and batch.manufacturing_date %}
-    <tr><td class="lbl">MNFR. DATE</td><td>{{ frappe.utils.formatdate(batch.manufacturing_date, "dd/MM/yy") }}</td></tr>
+    <tr><td class="lbl">LOT CODE</td><td>{{ doc.batch_reference or doc.custom_golden_number or "" }}</td></tr>
+    {%- set mnfr = (batch.manufacturing_date if batch else None) or doc.approval_date %}
+    {% if mnfr %}
+    <tr><td class="lbl">MNFR. DATE</td><td>{{ frappe.utils.formatdate(mnfr, "dd/MM/yy") }}</td></tr>
     {% endif %}
 </table>
 {%- endmacro -%}
@@ -108,12 +109,16 @@ Verified field bindings (PROD schema 2026-06-10):
     </tbody>
 </table>
 
-{% if ns.has_footnote %}<div class="coa-footnote">*RECONSTITUTED TO 0.5% TOTAL SOLIDS SOLUTION.</div>{% endif %}
+{% if doc.get("custom_coa_footnote") %}<div class="coa-footnote">
+{%- for ln in doc.custom_coa_footnote.splitlines() %}{% if ln.strip() %}{{ ln.strip() | upper }}<br>{% endif %}{% endfor %}</div>
+{% elif ns.has_footnote %}<div class="coa-footnote">*RECONSTITUTED TO 0.5% TOTAL SOLIDS SOLUTION.</div>{% endif %}
 
-{% if batch %}
+{%- set legacy_dates = doc.get("custom_coa_footnote") and "M.D." in doc.custom_coa_footnote %}
+{%- set md = (batch.manufacturing_date if batch else None) or doc.approval_date %}
+{% if md and not legacy_dates %}
 <div class="coa-dates">
-    {% if batch.manufacturing_date %}M.D. {{ frappe.utils.formatdate(batch.manufacturing_date, "dd/MM/yy") }}<br>{% endif %}
-    {% if batch.expiry_date %}E.D. {{ frappe.utils.formatdate(batch.expiry_date, "dd/MM/yy") }}{% endif %}
+    M.D. {{ frappe.utils.formatdate(md, "dd/MM/yy") }}<br>
+    {% if batch and batch.expiry_date %}E.D. {{ frappe.utils.formatdate(batch.expiry_date, "dd/MM/yy") }}{% endif %}
 </div>
 {% endif %}
 
