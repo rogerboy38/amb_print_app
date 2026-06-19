@@ -10,7 +10,7 @@ table { width:100%; border-collapse:collapse; }
 thead { display: table-header-group; }
 tr { page-break-inside: avoid; }
 </style>
-<div style="font-family:Arial,Helvetica,sans-serif;font-size:8pt;color:#000;padding:3mm 8mm 5mm 8mm;">
+<div style="font-family:Arial,Helvetica,sans-serif;font-size:8pt;color:#000;padding:2mm 8mm 3mm 8mm;">
   <table style="width:100%;border-collapse:collapse;margin-bottom:2mm;">
     <tr>
       <td style="border:1px solid #000;padding:2mm;width:60%;text-align:center;font-weight:bold;font-size:12pt;">REPORTE DIARIO DE ENVASADO</td>
@@ -54,7 +54,7 @@ tr { page-break-inside: avoid; }
     {%- for b in barrels %}
       <tr>
         <td style="border:1px solid #000;padding:0.4mm;text-align:center;">{{ loop.index }}</td>
-        <td style="border:1px solid #000;padding:0.5mm;text-align:center;">{{ bc(b.barrel_serial_number, "code39", module_height=5.5, module_width=0.19) | safe }}</td>
+        <td style="border:1px solid #000;padding:0.5mm;text-align:center;">{{ bc(b.barrel_serial_number, "code39", module_height=4.5, module_width=0.18) | safe }}</td>
         <td style="border:1px solid #000;padding:1mm;text-align:right;">{{ "%.2f"|format(b.gross_weight) if b.gross_weight else "" }}</td>
         <td style="border:1px solid #000;padding:1mm;text-align:right;">{{ "%.2f"|format(b.tara_weight) if b.tara_weight else "" }}</td>
         <td style="border:1px solid #000;padding:1mm;text-align:right;">{{ "%.2f"|format(b.net_weight) if b.net_weight else "" }}</td>
