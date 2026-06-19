@@ -3,7 +3,7 @@
  "css": "",
  "custom_format": 1,
  "default_print_language": "en",
- "disabled": 0,
+ "disabled": 1,
  "doc_type": "Batch AMB",
  "doctype": "Print Format",
  "line_breaks": 0,
