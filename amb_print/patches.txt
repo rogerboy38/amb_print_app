@@ -1,2 +1,4 @@
+[pre_model_sync]
+
 [post_model_sync]
 amb_print.amb_print.patches.v16_label_1.disable_app_label_formats
