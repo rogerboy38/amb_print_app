@@ -1,0 +1,86 @@
+{#- Carta de Instrucciones de Secado (Dry-plant maquila letter) &#8212; Batch AMB.
+    Boilerplate per CARTA DE INSTRUCCIIONES example + batch variables + LISTA DE BARRILES
+    from container_barrels. Helpers via frappe.get_attr. ASCII-safe template. -#}
+{%- set barrels = doc.container_barrels or [] -%}
+{%- set fmtdate = frappe.utils.formatdate -%}
+{%- set golden = doc.custom_golden_number or doc.name -%}
+<div style="font-family:Arial,Helvetica,sans-serif;font-size:10pt;color:#000;padding:8mm;line-height:1.35;">
+  <div style="text-align:right;font-size:9pt;">G&#243;mez Palacio, Dgo. a {{ fmtdate(doc.production_end_date, "dd 'de' MMMM 'del' yyyy") if doc.production_end_date else "____________________" }}</div>
+  <div style="text-align:center;background:#3a4a5a;color:#fff;font-weight:bold;padding:2mm;margin:3mm 0 1mm;">SECADO N&#176; ____ &nbsp;&nbsp; LOTE: {{ golden }}</div>
+  <div style="text-align:center;font-weight:bold;margin-bottom:4mm;">CARTA DE INSTRUCCIONES PARA EL PROCESO DE SECADO</div>
+  <div style="font-weight:bold;">IMPULSORA DE PROYECTOS PRODUCTIVOS</div>
+  <div style="margin-bottom:3mm;">Ing. Aurelio De La Parra</div>
+  <p>Por este medio, Agromayal Bot&#225;nica solicita servicio de maquila de secado SD s&#225;bila en polvo Org&#225;nico,
+    bajo los esquemas NOP, LPO, EC, KOC, FAIR TRADE, COSMOS, HALAL, KOSHER, IASC. Se estar&#225;n enviando la
+    cantidad de <b>{{ barrels|length }}</b> barriles de concentrado de s&#225;bila org&#225;nica por medio de
+    Transportes San Fermin SA. de CV. Se especifica en el PACKING LIST el n&#250;mero de lote a secar, as&#237; como
+    el n&#250;mero de lote que ser&#225; asignado al polvo puro resultante.</p>
+  <p>El producto llegar&#225; en contenedor refrigerado a una temperatura de 37&#176;F.</p>
+  <p>El polvo que resulte del proceso de secado debe ser un polvo homog&#233;neo y libre de part&#237;culas extra&#241;as;
+    favor de tomar 2 muestras de 75 gramos por cada 2 cu&#241;etes. Para la recolecci&#243;n de muestras, emp&#225;quense
+    en una caja de cart&#243;n y env&#237;en peso y dimensiones a: ernesto@amb-wellness.com, raul@amb-wellness.com y
+    luisf@amb-wellness.com. Nosotros generamos la gu&#237;a y se la enviamos; se indicar&#225; d&#237;a y hora de
+    recolecci&#243;n por paqueter&#237;a UPS. Favor de imprimir la gu&#237;a y colocarla en la caja.</p>
+  <div style="font-weight:bold;">Identificaci&#243;n de muestras:</div>
+  <ul style="margin:1mm 0 3mm 5mm;">
+    <li>Aloe vera en polvo Org&#225;nica NOP, LPO, EC, KOC / FAIR TRADE, COSMOS, HALAL, KOSHER, IASC</li>
+    <li>Producido por: IMPULSORA DE PROYECTOS PRODUCTIVOS</li>
+    <li>LOTE: {{ golden }}</li>
+    <li>Fabricaci&#243;n: ____________</li>
+    <li>N&#250;mero de cu&#241;ete: ____________</li>
+    <li>Contenido neto: {{ "%.2f"|format(doc.total_net_weight) if doc.total_net_weight else "____________" }} Kg</li>
+  </ul>
+  <p>Es de la mayor importancia que nos garantice que este y futuros secados cumplir&#225;n las siguientes
+    caracter&#237;sticas m&#237;nimas:</p>
+  <ol style="margin:1mm 0 3mm 5mm;font-size:9pt;">
+    <li>Aseguramiento de calidad microbiol&#243;gica.</li>
+    <li>Secado homog&#233;neo.</li>
+    <li>Sin contaminaci&#243;n por olores y sabores extra&#241;os, en el producto ni en el material de empaque.</li>
+    <li>Sin contaminaci&#243;n por materiales extra&#241;os.</li>
+    <li>Que su personal le d&#233; importancia a cualquier anomal&#237;a que observe.</li>
+    <li>El color deber&#225; ser el m&#225;s claro posible (control de temperaturas).</li>
+    <li>No usar "carriers" de ninguna especie.</li>
+    <li>En la factura deber&#225; referenciar el n&#250;mero de lote y esquema org&#225;nico.</li>
+    <li>Identificar todos los cu&#241;etes con la informaci&#243;n de esta carta, de manera consecutiva.</li>
+    <li>Tomar muestras de retenci&#243;n seg&#250;n esta carta, identificadas con la informaci&#243;n del secado.</li>
+    <li>Durante el secado por aspersi&#243;n cumplir los procedimientos y normativas aplicables (Org&#225;nico, Cosmos, Fair Trade, Halal, Kosher, IASC, calidad e inocuidad).</li>
+    <li>Asegurar la trazabilidad org&#225;nica en todas las etapas; referenciar el n&#250;mero de lote asignado en esta carta.</li>
+    <li>Antes de iniciar, equipos limpios sin rastros de qu&#237;micos u otros productos (evitar contaminaci&#243;n cruzada).</li>
+    <li>Cumplir los requerimientos normativos aplicables (Org&#225;nico NOP/EC/LPO/KOC, Fair Trade, Cosmos, Halal, Kosher, IASC, Calidad e Inocuidad).</li>
+  </ol>
+  <p style="font-size:9pt;">Se deber&#225; envasar en cu&#241;etes con 25 kg de polvo cada uno, con doble bolsa de polietileno de alta
+    densidad (calibre 300) para sellado perfecto; una bolsa de menor calibre no termo-sella &#243;ptimo y puede
+    causar fugas de producto.</p>
+  <div style="font-weight:bold;text-align:center;margin:4mm 0 1mm;">LISTA DE BARRILES</div>
+  <table style="width:100%;border-collapse:collapse;font-size:8pt;">
+    <thead><tr style="background:#eee;">
+      <th style="border:1px solid #000;padding:1mm;">#</th>
+      <th style="border:1px solid #000;padding:1mm;">Serial de Barril</th>
+      <th style="border:1px solid #000;padding:1mm;">Peso Bruto (kg)</th>
+      <th style="border:1px solid #000;padding:1mm;">Tara (kg)</th>
+      <th style="border:1px solid #000;padding:1mm;">Peso Neto (kg)</th>
+      <th style="border:1px solid #000;padding:1mm;">% S&#243;lidos</th>
+      <th style="border:1px solid #000;padding:1mm;">Lote Concentrado</th>
+      <th style="border:1px solid #000;padding:1mm;">Lote Polvo</th>
+    </tr></thead>
+    <tbody>
+    {%- for b in barrels %}
+      <tr>
+        <td style="border:1px solid #000;padding:1mm;text-align:center;">{{ loop.index }}</td>
+        <td style="border:1px solid #000;padding:1mm;font-family:monospace;">{{ b.barrel_serial_number or "" }}</td>
+        <td style="border:1px solid #000;padding:1mm;text-align:right;">{{ "%.2f"|format(b.gross_weight) if b.gross_weight else "" }}</td>
+        <td style="border:1px solid #000;padding:1mm;text-align:right;">{{ "%.2f"|format(b.tara_weight) if b.tara_weight else "" }}</td>
+        <td style="border:1px solid #000;padding:1mm;text-align:right;">{{ "%.2f"|format(b.net_weight) if b.net_weight else "" }}</td>
+        <td style="border:1px solid #000;padding:1mm;text-align:right;">{{ doc.brix_level if doc.brix_level else "" }}</td>
+        <td style="border:1px solid #000;padding:1mm;">{{ golden }}</td>
+        <td style="border:1px solid #000;padding:1mm;">____________</td>
+      </tr>
+    {%- endfor %}
+      <tr style="background:#f4f4f4;font-weight:bold;">
+        <td colspan="4" style="border:1px solid #000;padding:1mm;text-align:right;">TOTAL</td>
+        <td style="border:1px solid #000;padding:1mm;text-align:right;">{{ "%.2f"|format(doc.total_net_weight) if doc.total_net_weight else "" }}</td>
+        <td colspan="3" style="border:1px solid #000;padding:1mm;"></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
