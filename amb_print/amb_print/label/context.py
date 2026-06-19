@@ -89,6 +89,9 @@ def get_label_context(doctype, docname):
         "mfg_date": None,
         "exp_date": None,
         "control_number": None,
+        "is_export": False,
+        "sub_product": None,
+        "dest_plant": None,
         "language": "en",
         "related_doctype": None,
         "related_name": None,
@@ -139,8 +142,56 @@ def get_label_context(doctype, docname):
 
     elif doctype == "Batch AMB":
         ctx["lot"] = docname
-        ctx["po"] = doc.get("po_no")
         _load_barrels_from_batch(ctx, doc)
+        ctx["sub_product"] = _first(doc, "custom_subfamily", "custom_product_family")
+        ctx["dest_plant"] = _first(doc, "target_plant", "current_plant2", "manufacturing_plant")
+        # Hybrid export detection: SO via work order, else a linked Sample Request.
+        so_name = None
+        wo = doc.get("work_order_ref")
+        if wo and frappe.db.exists("Work Order", wo):
+            so_name = frappe.db.get_value("Work Order", wo, "sales_order")
+        sr = None
+        if not so_name:
+            _srl = frappe.get_all(
+                "Sample Request AMB",
+                filters={"batch_reference": docname},
+                fields=["name", "sales_order_related", "quotation",
+                        "related_to_type", "related_to_doc", "customer",
+                        "customer_name", "contact_person", "address",
+                        "letter_language"],
+                order_by="modified desc", limit=1,
+            )
+            sr = _srl[0] if _srl else None
+            if sr:
+                so_name = sr.get("sales_order_related")
+        if so_name and frappe.db.exists("Sales Order", so_name):
+            so = frappe.get_doc("Sales Order", so_name)
+            ctx["customer"] = so.get("customer")
+            ctx["customer_name"] = so.get("customer_name") or so.get("customer")
+            ctx["consignee"] = so.get("customer_name") or so.get("customer")
+            ctx["po"] = so.get("po_no")
+            ctx["contact_person"] = so.get("contact_person")
+            ctx["related_doctype"] = "Sales Order"
+            ctx["related_name"] = so_name
+            ctx["is_export"] = True
+        elif sr:
+            rel_dt = sr.get("related_to_type")
+            rel_dn = sr.get("related_to_doc")
+            party = sr.get("customer_name") or sr.get("customer")
+            if not party and rel_dt and rel_dn and frappe.db.exists(rel_dt, rel_dn):
+                _rd = frappe.get_doc(rel_dt, rel_dn)
+                party = _first(_rd, "customer_name", "company_name",
+                               "party_name", "lead_name", "title")
+            if party:
+                ctx["customer_name"] = party
+                ctx["consignee"] = party
+                ctx["contact_person"] = sr.get("contact_person")
+                ctx["related_doctype"] = rel_dt or "Sample Request AMB"
+                ctx["related_name"] = rel_dn or sr.get("name")
+                ctx["is_export"] = True
+            _ll = sr.get("letter_language") or ""
+            if _ll.startswith("Carta Esp"):
+                ctx["language"] = "es"
 
     elif doctype in ("Quotation", "Opportunity", "Lead"):
         ctx["customer"] = _first(doc, "party_name", "customer")
