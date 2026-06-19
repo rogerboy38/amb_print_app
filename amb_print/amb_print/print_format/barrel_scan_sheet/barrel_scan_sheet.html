@@ -1,0 +1,41 @@
+{#- Barrel Scan Sheet (amb_print) — operator fills/weighs barrels.
+    Source-agnostic: reads get_label_context; one Code 39 barcode per
+    Container Barrels serial + a lot barcode + a manual weight line.
+    Helpers via frappe.get_attr (app uses the legacy jenv hook). -#}
+{%- set glc = frappe.get_attr("amb_print.amb_print.label.context.get_label_context") -%}
+{%- set bc = frappe.get_attr("amb_print.amb_print.utils.barcode.barcode_svg") -%}
+{%- set ctx = glc(doc.doctype, doc.name) -%}
+<div style="font-family: Arial, Helvetica, sans-serif; padding: 6mm; color:#000;">
+  <div style="font-size:14pt; font-weight:bold; margin-bottom:1mm;">BARREL SCAN SHEET</div>
+  <div style="font-size:10pt; margin-bottom:3mm;">
+    LOT: <b>{{ ctx.lot or doc.name }}</b>
+    {%- if ctx.golden_number %} &nbsp;|&nbsp; GOLDEN #: <b>{{ ctx.golden_number }}</b>{% endif %}
+    {%- if ctx.product %}<br>PRODUCT: {{ ctx.product }}{% endif %}
+  </div>
+  <div style="margin-bottom:5mm;">
+    <div style="font-size:8pt; color:#444;">SCAN LOT</div>
+    {{ bc(ctx.lot or doc.name, "code39", module_height=13, module_width=0.34) | safe }}
+  </div>
+  <table style="width:100%; border-collapse:collapse; font-size:9pt;">
+    <thead><tr style="background:#eee;">
+      <th style="border:1px solid #000; padding:2mm; text-align:left; width:8%;">#</th>
+      <th style="border:1px solid #000; padding:2mm; text-align:left; width:30%;">BARREL SERIAL</th>
+      <th style="border:1px solid #000; padding:2mm; text-align:center; width:42%;">SCAN</th>
+      <th style="border:1px solid #000; padding:2mm; text-align:right; width:20%;">NET WEIGHT (KG)</th>
+    </tr></thead>
+    <tbody>
+    {%- for b in ctx.barrels %}
+      <tr>
+        <td style="border:1px solid #000; padding:2mm;">{{ loop.index }}</td>
+        <td style="border:1px solid #000; padding:2mm; font-family:monospace;">{{ b.serial or "" }}</td>
+        <td style="border:1px solid #000; padding:1mm; text-align:center;">{{ bc(b.serial, "code39", module_height=9, module_width=0.28) | safe }}</td>
+        <td style="border:1px solid #000; padding:2mm; text-align:right;">{{ "%.2f"|format(b.net_weight) if b.net_weight else "____________" }}</td>
+      </tr>
+    {%- endfor %}
+    {%- if not ctx.barrels %}
+      <tr><td colspan="4" style="border:1px solid #000; padding:5mm; text-align:center; color:#c00;">No barrels generated for this batch yet — run "Generate Barrel Serials" first.</td></tr>
+    {%- endif %}
+    </tbody>
+  </table>
+  <div style="font-size:7pt; color:#666; margin-top:4mm;">{{ ctx.exporter }} &nbsp;·&nbsp; barrels: {{ ctx.barrels|length }}</div>
+</div>
