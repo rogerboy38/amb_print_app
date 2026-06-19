@@ -4,7 +4,13 @@
 {%- set bc = frappe.get_attr("amb_print.amb_print.utils.barcode.barcode_svg") -%}
 {%- set barrels = doc.container_barrels or [] -%}
 {%- set fmtdate = frappe.utils.formatdate -%}
-<div style="font-family:Arial,Helvetica,sans-serif;font-size:8.5pt;color:#000;padding:5mm;">
+<style>
+@page { size: Letter; margin: 7mm; }
+table { width:100%; border-collapse:collapse; }
+thead { display: table-header-group; }
+tr { page-break-inside: avoid; }
+</style>
+<div style="font-family:Arial,Helvetica,sans-serif;font-size:8pt;color:#000;padding:0;">
   <table style="width:100%;border-collapse:collapse;margin-bottom:2mm;">
     <tr>
       <td style="border:1px solid #000;padding:2mm;width:60%;text-align:center;font-weight:bold;font-size:12pt;">REPORTE DIARIO DE ENVASADO</td>
@@ -16,12 +22,12 @@
   </table>
   <table style="width:100%;border-collapse:collapse;margin-bottom:2mm;font-size:8.5pt;">
     <tr>
-      <td style="border:1px solid #000;padding:1.5mm;"><b>Lote (Golden):</b> {{ doc.custom_golden_number or doc.name }}<br>{{ bc(doc.custom_golden_number or doc.name, "code39", module_height=7, module_width=0.26) | safe }}</td>
+      <td style="border:1px solid #000;padding:1.5mm;"><b>Lote (Golden):</b> {{ doc.custom_golden_number or doc.name }}<br>{{ bc(doc.custom_golden_number or doc.name, "code39", module_height=6, module_width=0.22) | safe }}</td>
       <td style="border:1px solid #000;padding:1.5mm;"><b>Tipo de Envase:</b> {{ doc.default_packaging_type or "____________" }}</td>
       <td style="border:1px solid #000;padding:1.5mm;"><b>&#176;Brix:</b> {{ doc.brix_level if doc.brix_level not in (None, 0) else "________" }}</td>
     </tr>
     <tr>
-      <td style="border:1px solid #000;padding:1.5mm;"><b>Sublote:</b> {{ doc.name }}<br>{{ bc(doc.name, "code39", module_height=7, module_width=0.26) | safe }}</td>
+      <td style="border:1px solid #000;padding:1.5mm;"><b>Sublote:</b> {{ doc.name }}<br>{{ bc(doc.name, "code39", module_height=6, module_width=0.22) | safe }}</td>
       <td style="border:1px solid #000;padding:1.5mm;"><b>Hr. Inicio Envasado:</b> ____________</td>
       <td style="border:1px solid #000;padding:1.5mm;"><b>Hr. Final Envasado:</b> ____________</td>
     </tr>
@@ -48,9 +54,9 @@
     <tbody>
     {%- for b in barrels %}
       <tr>
-        <td style="border:1px solid #000;padding:1mm;text-align:center;">{{ loop.index }}</td>
+        <td style="border:1px solid #000;padding:0.4mm;text-align:center;">{{ loop.index }}</td>
         <td style="border:1px solid #000;padding:1mm;font-family:monospace;">{{ b.barrel_serial_number or "" }}</td>
-        <td style="border:1px solid #000;padding:0.5mm;text-align:center;">{{ bc(b.barrel_serial_number, "code39", module_height=8, module_width=0.26) | safe }}</td>
+        <td style="border:1px solid #000;padding:0.5mm;text-align:center;">{{ bc(b.barrel_serial_number, "code39", module_height=5.5, module_width=0.19) | safe }}</td>
         <td style="border:1px solid #000;padding:1mm;text-align:right;">{{ "%.2f"|format(b.gross_weight) if b.gross_weight else "" }}</td>
         <td style="border:1px solid #000;padding:1mm;text-align:right;">{{ "%.2f"|format(b.tara_weight) if b.tara_weight else "" }}</td>
         <td style="border:1px solid #000;padding:1mm;text-align:right;">{{ "%.2f"|format(b.net_weight) if b.net_weight else "" }}</td>
