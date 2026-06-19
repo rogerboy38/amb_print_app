@@ -1,41 +1,79 @@
-{#- Barrel Scan Sheet (amb_print) — operator fills/weighs barrels.
-    Source-agnostic: reads get_label_context; one Code 39 barcode per
-    Container Barrels serial + a lot barcode + a manual weight line.
-    Helpers via frappe.get_attr (app uses the legacy jenv hook). -#}
-{%- set glc = frappe.get_attr("amb_print.amb_print.label.context.get_label_context") -%}
+{#- Registro de Envasado (PFRE-014) &#8212; daily packing/weighing record per Batch AMB,
+    upgraded from the Barrel Scan Sheet: keeps a Code 39 per barrel for scanning.
+    Reads the Batch AMB doc directly + barcode_svg via frappe.get_attr. -#}
 {%- set bc = frappe.get_attr("amb_print.amb_print.utils.barcode.barcode_svg") -%}
-{%- set ctx = glc(doc.doctype, doc.name) -%}
-<div style="font-family: Arial, Helvetica, sans-serif; padding: 6mm; color:#000;">
-  <div style="font-size:14pt; font-weight:bold; margin-bottom:1mm;">BARREL SCAN SHEET</div>
-  <div style="font-size:10pt; margin-bottom:3mm;">
-    LOT: <b>{{ ctx.lot or doc.name }}</b>
-    {%- if ctx.golden_number %} &nbsp;|&nbsp; GOLDEN #: <b>{{ ctx.golden_number }}</b>{% endif %}
-    {%- if ctx.product %}<br>PRODUCT: {{ ctx.product }}{% endif %}
-  </div>
-  <div style="margin-bottom:5mm;">
-    <div style="font-size:8pt; color:#444;">SCAN LOT</div>
-    {{ bc(ctx.lot or doc.name, "code39", module_height=13, module_width=0.34) | safe }}
-  </div>
-  <table style="width:100%; border-collapse:collapse; font-size:9pt;">
+{%- set barrels = doc.container_barrels or [] -%}
+{%- set fmtdate = frappe.utils.formatdate -%}
+<div style="font-family:Arial,Helvetica,sans-serif;font-size:8.5pt;color:#000;padding:5mm;">
+  <table style="width:100%;border-collapse:collapse;margin-bottom:2mm;">
+    <tr>
+      <td style="border:1px solid #000;padding:2mm;width:60%;text-align:center;font-weight:bold;font-size:12pt;">REPORTE DIARIO DE ENVASADO</td>
+      <td style="border:1px solid #000;padding:1mm;font-size:7.5pt;">PFRE-014<br>Versi&#243;n: 07<br>P&#225;gina 1 de 1<br>Tipo: Formato</td>
+    </tr>
+    <tr><td colspan="2" style="border:1px solid #000;padding:1mm;font-size:7.5pt;">
+      AGROMAYAL BOT&#193;NICA S.A. de C.V. &#8212; GUANACEV&#205; 245 PARQUE INDUSTRIAL G&#211;MEZ PALACIO &#183; Departamento emisor: Producci&#243;n
+    </td></tr>
+  </table>
+  <table style="width:100%;border-collapse:collapse;margin-bottom:2mm;font-size:8.5pt;">
+    <tr>
+      <td style="border:1px solid #000;padding:1.5mm;"><b>Lote (Golden):</b> {{ doc.custom_golden_number or doc.name }}<br>{{ bc(doc.custom_golden_number or doc.name, "code39", module_height=7, module_width=0.26) | safe }}</td>
+      <td style="border:1px solid #000;padding:1.5mm;"><b>Tipo de Envase:</b> {{ doc.default_packaging_type or "____________" }}</td>
+      <td style="border:1px solid #000;padding:1.5mm;"><b>&#176;Brix:</b> {{ doc.brix_level if doc.brix_level not in (None, 0) else "________" }}</td>
+    </tr>
+    <tr>
+      <td style="border:1px solid #000;padding:1.5mm;"><b>Sublote:</b> {{ doc.name }}<br>{{ bc(doc.name, "code39", module_height=7, module_width=0.26) | safe }}</td>
+      <td style="border:1px solid #000;padding:1.5mm;"><b>Hr. Inicio Envasado:</b> ____________</td>
+      <td style="border:1px solid #000;padding:1.5mm;"><b>Hr. Final Envasado:</b> ____________</td>
+    </tr>
+    <tr>
+      <td style="border:1px solid #000;padding:1.5mm;" colspan="2"><b>Descripci&#243;n de Producto:</b> {{ doc.item_name or doc.wo_item_name or "" }}</td>
+      <td style="border:1px solid #000;padding:1.5mm;"><b>Fecha:</b> {{ fmtdate(doc.production_end_date, "dd/MM/yyyy") if doc.production_end_date else "___ /___ /_____" }}</td>
+    </tr>
+    <tr>
+      <td style="border:1px solid #000;padding:1.5mm;"><b>Total de concentrado:</b> {{ "%.2f"|format(doc.total_net_weight) if doc.total_net_weight else "____________" }} kg</td>
+      <td style="border:1px solid #000;padding:1.5mm;"><b>Realiza:</b> ____________</td>
+      <td style="border:1px solid #000;padding:1.5mm;"><b>Supervisa:</b> ____________</td>
+    </tr>
+  </table>
+  <table style="width:100%;border-collapse:collapse;font-size:8pt;">
     <thead><tr style="background:#eee;">
-      <th style="border:1px solid #000; padding:2mm; text-align:left; width:8%;">#</th>
-      <th style="border:1px solid #000; padding:2mm; text-align:left; width:30%;">BARREL SERIAL</th>
-      <th style="border:1px solid #000; padding:2mm; text-align:center; width:42%;">SCAN</th>
-      <th style="border:1px solid #000; padding:2mm; text-align:right; width:20%;">NET WEIGHT (KG)</th>
+      <th style="border:1px solid #000;padding:1mm;width:6%;">N&#176;</th>
+      <th style="border:1px solid #000;padding:1mm;width:26%;">SERIAL DE BARRIL</th>
+      <th style="border:1px solid #000;padding:1mm;width:28%;">ESCANEO</th>
+      <th style="border:1px solid #000;padding:1mm;width:12%;">P. BRUTO (KG)</th>
+      <th style="border:1px solid #000;padding:1mm;width:10%;">TARA (KG)</th>
+      <th style="border:1px solid #000;padding:1mm;width:12%;">P. NETO (KG)</th>
+      <th style="border:1px solid #000;padding:1mm;width:6%;">OPER.</th>
     </tr></thead>
     <tbody>
-    {%- for b in ctx.barrels %}
+    {%- for b in barrels %}
       <tr>
-        <td style="border:1px solid #000; padding:2mm;">{{ loop.index }}</td>
-        <td style="border:1px solid #000; padding:2mm; font-family:monospace;">{{ b.serial or "" }}</td>
-        <td style="border:1px solid #000; padding:1mm; text-align:center;">{{ bc(b.serial, "code39", module_height=9, module_width=0.28) | safe }}</td>
-        <td style="border:1px solid #000; padding:2mm; text-align:right;">{{ "%.2f"|format(b.net_weight) if b.net_weight else "____________" }}</td>
+        <td style="border:1px solid #000;padding:1mm;text-align:center;">{{ loop.index }}</td>
+        <td style="border:1px solid #000;padding:1mm;font-family:monospace;">{{ b.barrel_serial_number or "" }}</td>
+        <td style="border:1px solid #000;padding:0.5mm;text-align:center;">{{ bc(b.barrel_serial_number, "code39", module_height=8, module_width=0.26) | safe }}</td>
+        <td style="border:1px solid #000;padding:1mm;text-align:right;">{{ "%.2f"|format(b.gross_weight) if b.gross_weight else "" }}</td>
+        <td style="border:1px solid #000;padding:1mm;text-align:right;">{{ "%.2f"|format(b.tara_weight) if b.tara_weight else "" }}</td>
+        <td style="border:1px solid #000;padding:1mm;text-align:right;">{{ "%.2f"|format(b.net_weight) if b.net_weight else "" }}</td>
+        <td style="border:1px solid #000;padding:1mm;"></td>
       </tr>
     {%- endfor %}
-    {%- if not ctx.barrels %}
-      <tr><td colspan="4" style="border:1px solid #000; padding:5mm; text-align:center; color:#c00;">No barrels generated for this batch yet — run "Generate Barrel Serials" first.</td></tr>
+    {%- if not barrels %}
+      <tr><td colspan="7" style="border:1px solid #000;padding:4mm;text-align:center;color:#c00;">Sin barriles &#8212; ejecutar "Generate Barrel Serials".</td></tr>
     {%- endif %}
+      <tr style="background:#f4f4f4;font-weight:bold;">
+        <td colspan="3" style="border:1px solid #000;padding:1mm;text-align:right;">TOTAL</td>
+        <td style="border:1px solid #000;padding:1mm;text-align:right;">{{ "%.2f"|format(doc.total_gross_weight) if doc.total_gross_weight else "" }}</td>
+        <td style="border:1px solid #000;padding:1mm;text-align:right;">{{ "%.2f"|format(doc.total_tara_weight) if doc.total_tara_weight else "" }}</td>
+        <td style="border:1px solid #000;padding:1mm;text-align:right;">{{ "%.2f"|format(doc.total_net_weight) if doc.total_net_weight else "" }}</td>
+        <td style="border:1px solid #000;padding:1mm;"></td>
+      </tr>
     </tbody>
   </table>
-  <div style="font-size:7pt; color:#666; margin-top:4mm;">{{ ctx.exporter }} &nbsp;·&nbsp; barrels: {{ ctx.barrels|length }}</div>
+  <div style="margin-top:2mm;font-size:7.5pt;border:1px solid #000;padding:1.5mm;">
+    <b>Instrucciones Generales de Proceso:</b>
+    * Verificar suministro de energ&#237;a en &#225;rea de envasado. &nbsp; * Verificar compresor de aire. &nbsp;
+    * Verificar calibraci&#243;n de b&#225;scula digital. &nbsp; * Verificar v&#225;lvula de salida del tanque y comenzar a envasar. &nbsp;
+    * Cerrar tapones de los barriles. &nbsp; * Almacenar barriles en cuarto fr&#237;o (-2 a 4&#176;C). &nbsp;
+    * Revisar filtros de malla/hilo al inicio y t&#233;rmino del proceso.
+  </div>
 </div>
