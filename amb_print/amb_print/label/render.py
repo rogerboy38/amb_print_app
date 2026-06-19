@@ -52,7 +52,7 @@ def _scrub(s: str) -> str:
         return _legacy_scrub(s)
 
 
-def build_html(doctype: str, docname: str, print_format: str) -> str:
+def build_html(doctype: str, docname: str, print_format: str, start_position=None, label_qty=None) -> str:
     """Render the print_format's .html template directly to a complete HTML doc.
 
     Parameters
@@ -121,6 +121,8 @@ def build_html(doctype: str, docname: str, print_format: str) -> str:
     context: dict[str, Any] = {
         "doc": doc_obj,
         "frappe": frappe,
+        "start_position": start_position,
+        "label_qty": label_qty,
     }
     inner = frappe.render_template(tpl_src, context)
 

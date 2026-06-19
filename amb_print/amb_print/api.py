@@ -39,7 +39,8 @@ logger = logging.getLogger(__name__)
 
 @frappe.whitelist()
 def print_label_pdf(doctype: str, docname: str, print_format: str,
-                    save_attachment: int = 1, is_private: int = 0) -> dict:
+                    save_attachment: int = 1, is_private: int = 0,
+                    start_position=None, label_qty=None) -> dict:
     """Render a label PDF for (doctype, docname) using `print_format`.
 
     Parameters
@@ -81,7 +82,8 @@ def print_label_pdf(doctype: str, docname: str, print_format: str,
 
     # 1) Build HTML directly from the print_format template (no Frappe wrapper)
     html = build_html(doctype=doctype, docname=docname,
-                      print_format=print_format)
+                      print_format=print_format,
+                      start_position=start_position, label_qty=label_qty)
 
     # 2) Render to PDF via Playwright (Chromium). prefer_css_page_size=True
     #    means the template's @page rule wins, so labels go full bleed

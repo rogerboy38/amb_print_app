@@ -5,15 +5,20 @@
 {%- set ctx = glc(doc.doctype, doc.name) -%}
 {%- set rows = (ctx.barrels or []) | selectattr("active","equalto",1) | list -%}
 {%- if not rows -%}{%- set rows = ctx.barrels or [] -%}{%- endif -%}
-{%- set per = 8 -%}{%- set total = rows|length -%}
-{%- set pages = ((total + per - 1)//per) if total else 1 -%}
+{%- set per = 8 -%}
+{%- set positions = ["A1","B1","A2","B2","A3","B3","A4","B4"] -%}
+{%- set sp = start_position if (start_position and start_position in positions) else "A1" -%}
+{%- set start_index = positions.index(sp) -%}
+{%- set total = rows|length -%}
+{%- if label_qty -%}{%- set total = [total, label_qty|int]|min -%}{%- endif -%}
+{%- set pages = ((total + start_index + per - 1)//per) if total else 1 -%}
 <style>
   @page{size:Letter;margin:0;}
   html,body{margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-  .sheet{width:215.9mm;height:279.4mm;display:flex;flex-direction:column;padding:3mm;box-sizing:border-box;page-break-after:always;}
+  .sheet{width:215.9mm;height:279.4mm;display:flex;flex-direction:column;padding:5.2mm 2.95mm;box-sizing:border-box;page-break-after:always;}
   .sheet:last-child{page-break-after:auto;}
-  .row{display:flex;width:100%;height:67mm;}
-  .cell{width:103mm;height:67mm;box-sizing:border-box;border:1px dashed #999;position:relative;overflow:hidden;padding:3mm;font-size:7.5pt;color:#000;}
+  .row{display:flex;width:100%;height:67.25mm;}
+  .cell{width:105mm;height:67.25mm;box-sizing:border-box;border:1px dashed #999;position:relative;overflow:hidden;padding:5.2mm 2.95mm;font-size:7.5pt;color:#000;}
   .codes{position:absolute;top:3mm;right:3mm;width:30mm;text-align:center;}
   .codes img{width:16mm;height:16mm;}
   .codes svg{width:30mm;height:8mm;display:block;margin:0.5mm auto 0;}
@@ -26,7 +31,7 @@
   {% set start = pg*per %}
   {% for g in range(per) %}
     {% if g%2==0 %}{% if g>0 %}</div>{% endif %}<div class="row">{% endif %}
-    {% set idx = start+g %}{% set b = rows[idx] if idx<total else None %}
+    {% set idx = start+g-start_index %}{% set b = rows[idx] if (idx>=0 and idx<total) else None %}
     <div class="cell">
       {% if b is not none %}
       <div class="codes"><img src="{{ qr(b.serial) }}">{{ bc(b.serial, "code128", module_height=7, module_width=0.2) | safe }}</div>
