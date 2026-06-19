@@ -1,0 +1,39 @@
+{#- Shipping Label Box (amb_print) - ONE shipment-level label for the outer carton.
+    Shipment totals (barrels + net) from get_label_context; QR + Code128 of the
+    control/golden key. Source-agnostic. Helpers via frappe.get_attr. -#}
+{%- set glc = frappe.get_attr("amb_print.amb_print.label.context.get_label_context") -%}
+{%- set bc  = frappe.get_attr("amb_print.amb_print.utils.barcode.barcode_svg") -%}
+{%- set qr  = frappe.get_attr("amb_print.amb_print.utils.barcode.qr_data_uri") -%}
+{%- set ctx = glc(doc.doctype, doc.name) -%}
+{%- set nb = (ctx.barrels|length) if ctx.barrels else 0 -%}
+{%- set totnet = (ctx.barrels|sum(attribute='net_weight')) if ctx.barrels else 0 -%}
+{%- set key = ctx.control_number or ctx.golden_number or ctx.lot or "" -%}
+<style>
+  .box-label{width:190mm;min-height:120mm;box-sizing:border-box;border:2px solid #000;
+    padding:8mm;margin:4mm auto;font-family:Arial,Helvetica,sans-serif;font-size:12pt;position:relative;}
+  .box-codes{position:absolute;top:8mm;right:8mm;width:55mm;text-align:center;}
+  .box-codes img{width:42mm;height:42mm;}
+  .box-codes svg{width:55mm;height:16mm;display:block;margin:2mm auto 0;}
+  .box-body{padding-right:62mm;}
+  .box-title{font-size:14pt;font-weight:bold;margin-bottom:4mm;}
+  .box-field{margin:1.6mm 0;}
+  .box-cert{margin-top:6mm;font-size:9pt;}
+</style>
+<div class="box-label">
+  <div class="box-codes">
+    <img src="{{ qr(key) }}">
+    {{ bc(key, "code128", module_height=11, module_width=0.33) | safe }}
+  </div>
+  <div class="box-body">
+    <div class="box-title">SHIPPING / EXTERNAL BOX LABEL</div>
+    <div class="box-field"><b>EXPORTER AND MANUFACTURER:</b> {{ ctx.exporter }}</div>
+    <div class="box-field"><b>CONSIGNE :</b> {{ ctx.consignee or "" }}</div>
+    <div class="box-field"><b>PRODUCT :</b> {{ ctx.product or "" }}</div>
+    <div class="box-field"><b>LOT :</b> {{ ctx.lot or "" }}</div>
+    <div class="box-field"><b>AMB CONTROL / GOLDEN :</b> {{ key }}</div>
+    <div class="box-field"><b>P.O. :</b> {{ ctx.po or "" }}</div>
+    <div class="box-field"><b>TOTAL BARRELS / CONTAINERS :</b> {{ nb }}</div>
+    <div class="box-field"><b>TOTAL NET WEIGHT :</b> {{ "%.1f"|format(totnet) }} KGS.</div>
+  </div>
+  <div class="box-cert">CERTIFIED AS 100% ORGANIC BY ECOCERT GREENLIFE ACCORDING TO COSMOS STANDARD</div>
+</div>

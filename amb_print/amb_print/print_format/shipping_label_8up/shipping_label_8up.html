@@ -1,0 +1,47 @@
+{#- Shipping Label 8up (amb_print) - 2x4 per-barrel export labels on Letter, cut lines, compact. -#}
+{%- set glc = frappe.get_attr("amb_print.amb_print.label.context.get_label_context") -%}
+{%- set bc  = frappe.get_attr("amb_print.amb_print.utils.barcode.barcode_svg") -%}
+{%- set qr  = frappe.get_attr("amb_print.amb_print.utils.barcode.qr_data_uri") -%}
+{%- set ctx = glc(doc.doctype, doc.name) -%}
+{%- set rows = (ctx.barrels or []) | selectattr("active","equalto",1) | list -%}
+{%- if not rows -%}{%- set rows = ctx.barrels or [] -%}{%- endif -%}
+{%- set per = 8 -%}{%- set total = rows|length -%}
+{%- set pages = ((total + per - 1)//per) if total else 1 -%}
+<style>
+  @page{size:Letter;margin:0;}
+  html,body{margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .sheet{width:215.9mm;height:279.4mm;display:flex;flex-direction:column;padding:3mm;box-sizing:border-box;page-break-after:always;}
+  .sheet:last-child{page-break-after:auto;}
+  .row{display:flex;width:100%;height:67mm;}
+  .cell{width:103mm;height:67mm;box-sizing:border-box;border:1px dashed #999;position:relative;overflow:hidden;padding:3mm;font-size:7.5pt;color:#000;}
+  .codes{position:absolute;top:3mm;right:3mm;width:30mm;text-align:center;}
+  .codes img{width:16mm;height:16mm;}
+  .codes svg{width:30mm;height:8mm;display:block;margin:0.5mm auto 0;}
+  .body{padding-right:32mm;}
+  .f{margin:0.3mm 0;}
+  .cert{position:absolute;bottom:2mm;left:3mm;right:3mm;font-size:6pt;}
+</style>
+{% for pg in range(pages) %}
+<div class="sheet">
+  {% set start = pg*per %}
+  {% for g in range(per) %}
+    {% if g%2==0 %}{% if g>0 %}</div>{% endif %}<div class="row">{% endif %}
+    {% set idx = start+g %}{% set b = rows[idx] if idx<total else None %}
+    <div class="cell">
+      {% if b is not none %}
+      <div class="codes"><img src="{{ qr(b.serial) }}">{{ bc(b.serial, "code128", module_height=7, module_width=0.2) | safe }}</div>
+      <div class="body">
+        <div class="f"><b>AGROMAYAL BOTANICA S.A. DE C.V.</b></div>
+        <div class="f">CONSIGNE : {{ ctx.consignee or "" }}</div>
+        <div class="f">PRODUCT : {{ ctx.product or "" }}</div>
+        <div class="f">LOT : {{ (b.lot if b.lot else ctx.lot) or "" }}</div>
+        <div class="f">NET : {{ ("%.1f"|format(b.net_weight) if b.net_weight else "***") }} KGS.</div>
+        <div class="f"><b>AMB CONTROL : # {{ ctx.control_number or "" }}</b></div>
+      </div>
+      <div class="cert">100% ORGANIC - ECOCERT / COSMOS</div>
+      {% endif %}
+    </div>
+    {% if g==per-1 %}</div>{% endif %}
+  {% endfor %}
+</div>
+{% endfor %}
