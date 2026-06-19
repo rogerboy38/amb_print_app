@@ -4,8 +4,8 @@
 {%- set barrels = doc.container_barrels or [] -%}
 {%- set fmtdate = frappe.utils.formatdate -%}
 {%- set golden = doc.custom_golden_number or doc.name -%}
-<div style="font-family:Arial,Helvetica,sans-serif;font-size:10pt;color:#000;padding:8mm;line-height:1.35;">
-  <div style="text-align:right;font-size:9pt;">G&#243;mez Palacio, Dgo. a {{ fmtdate(doc.production_end_date, "dd 'de' MMMM 'del' yyyy") if doc.production_end_date else "____________________" }}</div>
+<div style="font-family:Arial,Helvetica,sans-serif;font-size:8.5pt;color:#000;padding:2mm 8mm 3mm 8mm;line-height:1.12;">
+  <div style="text-align:right;font-size:7.5pt;">G&#243;mez Palacio, Dgo. a {{ fmtdate(doc.production_end_date, "dd 'de' MMMM 'del' yyyy") if doc.production_end_date else "____________________" }}</div>
   <div style="text-align:center;background:#3a4a5a;color:#fff;font-weight:bold;padding:2mm;margin:3mm 0 1mm;">SECADO N&#176; ____ &nbsp;&nbsp; LOTE: {{ golden }}</div>
   <div style="text-align:center;font-weight:bold;margin-bottom:4mm;">CARTA DE INSTRUCCIONES PARA EL PROCESO DE SECADO</div>
   <div style="font-weight:bold;">IMPULSORA DE PROYECTOS PRODUCTIVOS</div>
@@ -32,7 +32,7 @@
   </ul>
   <p>Es de la mayor importancia que nos garantice que este y futuros secados cumplir&#225;n las siguientes
     caracter&#237;sticas m&#237;nimas:</p>
-  <ol style="margin:1mm 0 3mm 5mm;font-size:9pt;">
+  <ol style="margin:1mm 0 3mm 5mm;font-size:7.5pt;">
     <li>Aseguramiento de calidad microbiol&#243;gica.</li>
     <li>Secado homog&#233;neo.</li>
     <li>Sin contaminaci&#243;n por olores y sabores extra&#241;os, en el producto ni en el material de empaque.</li>
@@ -48,7 +48,7 @@
     <li>Antes de iniciar, equipos limpios sin rastros de qu&#237;micos u otros productos (evitar contaminaci&#243;n cruzada).</li>
     <li>Cumplir los requerimientos normativos aplicables (Org&#225;nico NOP/EC/LPO/KOC, Fair Trade, Cosmos, Halal, Kosher, IASC, Calidad e Inocuidad).</li>
   </ol>
-  <p style="font-size:9pt;">Se deber&#225; envasar en cu&#241;etes con 25 kg de polvo cada uno, con doble bolsa de polietileno de alta
+  <p style="font-size:7.5pt;">Se deber&#225; envasar en cu&#241;etes con 25 kg de polvo cada uno, con doble bolsa de polietileno de alta
     densidad (calibre 300) para sellado perfecto; una bolsa de menor calibre no termo-sella &#243;ptimo y puede
     causar fugas de producto.</p>
   <div style="font-weight:bold;text-align:center;margin:4mm 0 1mm;">LISTA DE BARRILES</div>
