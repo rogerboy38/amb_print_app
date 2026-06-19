@@ -154,3 +154,53 @@ def barcode_svg(value, symbology="code39", **kwargs):
     if sym in ("128", "c128"):
         return code128_svg(value, **kwargs)
     return code39_svg(value, **kwargs)
+
+
+def qr_data_uri(value, box_size: int = 3, border: int = 2) -> str:
+    """Return a QR code for `value` as a base64 PNG data-URI (for <img src=...>).
+
+    Mirrors the code128_svg contract: empty value -> "", missing `qrcode`
+    library -> visible red placeholder. `qrcode` + Pillow are baked into the
+    custom-erpnext image (same as python-barcode).
+    """
+    if not value:
+        return ""
+    try:
+        import io as _io
+        import base64 as _b64
+        import qrcode as _qr
+    except ImportError:
+        return (
+            '<svg xmlns="http://www.w3.org/2000/svg" width="20mm" height="20mm">'
+            '<text x="1" y="10" fill="#c00000" font-family="Arial" font-size="6pt">'
+            '[qrcode not installed]</text></svg>'
+        )
+    img = _qr.make(str(value), box_size=box_size, border=border)
+    buf = _io.BytesIO()
+    img.save(buf, format="PNG")
+    return "data:image/png;base64," + _b64.b64encode(buf.getvalue()).decode()
+
+
+def qr_data_uri(value, box_size: int = 3, border: int = 2) -> str:
+    """Return a QR code for `value` as a base64 PNG data-URI (for <img src=...>).
+
+    Mirrors the code128_svg contract: empty value -> "", missing `qrcode`
+    library -> visible red placeholder. `qrcode` + Pillow are baked into the
+    custom-erpnext image (same as python-barcode).
+    """
+    if not value:
+        return ""
+    try:
+        import io as _io
+        import base64 as _b64
+        import qrcode as _qr
+    except ImportError:
+        return (
+            '<svg xmlns="http://www.w3.org/2000/svg" width="20mm" height="20mm">'
+            '<text x="1" y="10" fill="#c00000" font-family="Arial" font-size="6pt">'
+            '[qrcode not installed]</text></svg>'
+        )
+    img = _qr.make(str(value), box_size=box_size, border=border)
+    buf = _io.BytesIO()
+    img.save(buf, format="PNG")
+    return "data:image/png;base64," + _b64.b64encode(buf.getvalue()).decode()

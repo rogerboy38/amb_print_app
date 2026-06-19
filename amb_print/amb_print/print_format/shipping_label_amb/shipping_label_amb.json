@@ -1,0 +1,20 @@
+{
+ "align_labels_right": 0,
+ "css": "",
+ "custom_format": 1,
+ "default_print_language": "en",
+ "disabled": 0,
+ "doc_type": "Sample Request AMB",
+ "doctype": "Print Format",
+ "line_breaks": 0,
+ "margin_bottom": 5,
+ "margin_left": 5,
+ "margin_right": 5,
+ "margin_top": 5,
+ "module": "AMB Print",
+ "name": "Shipping Label AMB",
+ "print_format_type": "Jinja",
+ "raw_printing": 0,
+ "show_section_headings": 0,
+ "standard": "Yes"
+}

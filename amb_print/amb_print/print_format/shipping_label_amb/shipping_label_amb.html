@@ -1,0 +1,37 @@
+{#- Shipping Label AMB (amb_print) — 6x4 in, one label per barrel, 2-up.
+    Content per ETIQUETAS AMB.pdf. Source-agnostic via get_label_context;
+    QR (qr_data_uri) + configurable barcode (barcode_svg, code128 for shipment).
+    Helpers via frappe.get_attr (legacy jenv unregistered on v14). -#}
+{%- set glc = frappe.get_attr("amb_print.amb_print.label.context.get_label_context") -%}
+{%- set bc  = frappe.get_attr("amb_print.amb_print.utils.barcode.barcode_svg") -%}
+{%- set qr  = frappe.get_attr("amb_print.amb_print.utils.barcode.qr_data_uri") -%}
+{%- set ctx = glc(doc.doctype, doc.name) -%}
+{%- set rows = ctx.barrels if ctx.barrels else [None] -%}
+<style>
+  .ship-label{width:150mm;height:96mm;box-sizing:border-box;border:1px solid #000;
+    padding:5mm;float:left;margin:2mm;font-family:Arial,Helvetica,sans-serif;font-size:9pt;page-break-inside:avoid;position:relative;}
+  .ship-label:nth-child(2n){clear:right;}
+  .sl-codes{position:absolute;top:5mm;right:5mm;text-align:center;}
+  .sl-codes img{width:22mm;height:22mm;}
+  .sl-field{margin:0.6mm 0;}
+  .sl-cert{margin-top:3mm;font-size:7.5pt;}
+</style>
+{%- for b in rows %}
+<div class="ship-label">
+  <div class="sl-codes">
+    <img src="{{ qr(b.serial if b else ctx.lot) }}"><br>
+    {{ bc(b.serial if b else ctx.lot, "code128", module_height=9, module_width=0.28) | safe }}
+  </div>
+  <div class="sl-field"><b>EXPORTER AND MANUFACTURER:</b></div>
+  <div class="sl-field">{{ ctx.exporter }}</div>
+  <div class="sl-field">CONSIGNE : {{ ctx.consignee or "" }}</div>
+  <div class="sl-field">PRODUCT : {{ ctx.product or "" }}</div>
+  <div class="sl-field">LOT : {{ (b.lot if b and b.lot else ctx.lot) or "" }}</div>
+  <div class="sl-field">M.D. {{ (b.mfg_date if b else "") or "" }} DD/MM/YY</div>
+  <div class="sl-field">E.D. {{ (b.exp_date if b else "") or "" }} DD/MM/YY</div>
+  <div class="sl-field">P.O. {{ ctx.po or "" }}</div>
+  <div class="sl-field">NET WEIGHT : {{ ("%.1f"|format(b.net_weight) if b and b.net_weight else "***") }} KGS.</div>
+  <div class="sl-field">AMB CONTROL NUMBER : # {{ ctx.control_number or "" }}</div>
+  <div class="sl-cert">CERTIFIED AS 100% ORGANIC<br>BY ECOCERT GREENLIFE ACCORDING TO COSMOS STANDARD</div>
+</div>
+{%- endfor %}
