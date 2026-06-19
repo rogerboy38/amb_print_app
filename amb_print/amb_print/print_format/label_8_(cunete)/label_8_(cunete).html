@@ -36,7 +36,7 @@
 {% set _pages = ((_total + _per_page - 1) // _per_page) if _total else 1 %}
 
 {# Batch-level constants — fall through field-name candidates #}
-{% set _cliente = doc.customer or doc.client or doc.consignee or "[CLIENTE field missing]" %}
+{% set _cliente = frappe.get_attr("amb_print.amb_print.label.context.get_label_context")(doc.doctype, doc.name).consignee or doc.customer or "" %}
 {% set _batch   = doc.name or "[BATCH name missing]" %}
 
 <!-- JsBarcode CDN: Chromium evaluates this before PDF capture. -->
