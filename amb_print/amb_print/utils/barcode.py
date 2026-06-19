@@ -86,3 +86,71 @@ def code128_svg(
     svg = _XML_DECL_RE.sub("", svg, count=1)
     svg = _DOCTYPE_RE.sub("", svg, count=1)
     return svg.strip()
+
+
+def code39_svg(
+    value: str,
+    module_height: float = 12.0,
+    module_width: float = 0.30,
+    font_size: int = 8,
+    text_distance: float = 2.0,
+    quiet_zone: float = 1.0,
+    write_text: bool = True,
+    add_checksum: bool = False,
+) -> str:
+    """Render `value` as a Code 39 barcode and return inline SVG.
+
+    Code 39 is the symbology used on the operator scan sheet and labels: it
+    matches the handheld scanner and the legacy Excel `Libre Barcode 39` sheet
+    (which used no checksum, so `add_checksum` defaults False -> the encoded
+    symbol is identical). Code 39 charset: A-Z, 0-9, space and - . $ / + % ;
+    lowercase is upper-cased by python-barcode. Empty `value` returns "" so
+    templates may call unconditionally; a missing python-barcode returns a
+    visible red placeholder (same behavior as code128_svg).
+    """
+    if not value:
+        return ""
+    try:
+        import barcode
+        from barcode.writer import SVGWriter
+    except ImportError:
+        return (
+            '<svg xmlns="http://www.w3.org/2000/svg" width="40mm" height="10mm">'
+            '<text x="2" y="12" fill="#c00000" font-family="Arial" '
+            'font-size="9pt">[python-barcode not installed]</text>'
+            "</svg>"
+        )
+    buf = io.BytesIO()
+    options = {
+        "module_height": module_height,
+        "module_width": module_width,
+        "font_size": font_size,
+        "text_distance": text_distance,
+        "quiet_zone": quiet_zone,
+        "write_text": write_text,
+    }
+    barcode.Code39(str(value), writer=SVGWriter(), add_checksum=add_checksum).write(
+        buf, options=options
+    )
+    svg = buf.getvalue().decode("utf-8")
+    svg = _XML_DECL_RE.sub("", svg, count=1)
+    svg = _DOCTYPE_RE.sub("", svg, count=1)
+    return svg.strip()
+
+
+def barcode_svg(value, symbology="code39", **kwargs):
+    """Dispatch to code39_svg / code128_svg by `symbology` (configurable).
+
+    Lets a print format or setting choose the symbology at render time:
+        {% set bc = frappe.get_attr("amb_print.amb_print.utils.barcode.barcode_svg") %}
+        {{ bc(serial, ctx.barcode_symbology) | safe }}
+
+    `symbology` accepts "code39"/"39" or "code128"/"128" (case-insensitive).
+    Unknown/empty values fall back to Code 39 (operator-scanner + legacy-Excel
+    parity). Extra kwargs (module_height, module_width, ...) pass through.
+    Recommended defaults: scan sheet -> code39, shipment label -> code128.
+    """
+    sym = (symbology or "code39").strip().lower().replace("code", "").replace("-", "")
+    if sym in ("128", "c128"):
+        return code128_svg(value, **kwargs)
+    return code39_svg(value, **kwargs)
