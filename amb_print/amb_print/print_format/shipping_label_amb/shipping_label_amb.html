@@ -28,7 +28,7 @@
   <div class="sl-field"><b>AMB CONTROL NUMBER : # {{ ctx.control_number or "" }}</b></div>
   <div class="sl-codes">
     <img src="{{ qr(b.serial if b else ctx.lot) }}">
-    {{ bc(b.serial if b else ctx.lot, "code128", module_height=10, module_width=0.3) | safe }}
+    {{ bc(ctx.golden_number, "code128", module_height=10, module_width=0.3) | safe }}
   </div>
   <div class="sl-cert">CERTIFIED AS 100% ORGANIC<br>BY ECOCERT GREENLIFE ACCORDING TO COSMOS STANDARD</div>
 </div>

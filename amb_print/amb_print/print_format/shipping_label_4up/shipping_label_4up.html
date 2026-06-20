@@ -34,7 +34,7 @@
     {% set idx = start+g-start_index %}{% set b = rows[idx] if (idx>=0 and idx<total) else None %}
     <div class="cell">
       {% if b is not none %}
-      <div class="codes"><img src="{{ qr(b.serial) }}">{{ bc(b.serial, "code128", module_height=9, module_width=0.26) | safe }}</div>
+      <div class="codes"><img src="{{ qr(b.serial) }}">{{ bc(ctx.golden_number, "code128", module_height=9, module_width=0.33) | safe }}</div>
       <div class="body">
         <div class="f"><b>EXPORTER AND MANUFACTURER:</b></div>
         <div class="f">{{ ctx.exporter }}</div>

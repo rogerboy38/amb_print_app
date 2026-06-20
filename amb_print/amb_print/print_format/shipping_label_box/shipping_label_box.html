@@ -22,7 +22,7 @@
 <div class="box-label">
   <div class="box-codes">
     <img src="{{ qr(key) }}">
-    {{ bc(key, "code128", module_height=11, module_width=0.33) | safe }}
+    {{ bc(ctx.golden_number, "code128", module_height=11, module_width=0.33) | safe }}
   </div>
   <div class="box-body">
     <div class="box-title">SHIPPING / EXTERNAL BOX LABEL</div>
