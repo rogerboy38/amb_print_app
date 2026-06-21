@@ -160,3 +160,52 @@ def label_hello_world(sales_order):
 # (Sample Request AMB labels, BRL barrel labels, batch QR labels for warehouse
 # pick lists, etc.) Keep them small — heavy lifting belongs in
 # `amb_print.label.*` and `amb_print.pdf.*`, this file stays a thin facade.
+
+
+@frappe.whitelist()
+def print_document_pdf(doctype: str, docname: str, print_format: str,
+                       save_attachment: int = 1, is_private: int = 0) -> dict:
+    """Render a business DOCUMENT (proforma / memo) for (doctype, docname).
+
+    Same pipeline as print_label_pdf (build_html -> Playwright -> attach), but
+    letter-portrait WITH margins instead of full-bleed. Bypasses
+    frappe.get_print() so it never hits the print wrapper / letterhead layer
+    that 500s on Sample Request AMB.
+    """
+    from amb_print.amb_print.label import build_html, save_pdf_to_doc
+    from amb_print.amb_print.pdf import render_pdf
+    from amb_print.amb_print.pdf.options import PdfOptions
+
+    save_attachment = int(save_attachment)
+    is_private = int(is_private)
+
+    logger.info("amb_print.print_document_pdf: %s %s via %s",
+                doctype, docname, print_format)
+
+    html = build_html(doctype=doctype, docname=docname, print_format=print_format)
+
+    pdf_bytes = render_pdf(html, options=PdfOptions(
+        page="Letter", margin_mm=12, prefer_css_page_size=False))
+
+    if not pdf_bytes:
+        frappe.throw("amb_print: render produced empty PDF.",
+                     title="amb_print: empty render")
+
+    file_url = None
+    file_name = None
+    if save_attachment:
+        file_doc = save_pdf_to_doc(
+            pdf_bytes=pdf_bytes, doctype=doctype, docname=docname,
+            print_format=print_format, is_private=is_private)
+        file_url = file_doc.file_url
+        file_name = file_doc.file_name
+
+    return {
+        "doctype": doctype,
+        "docname": docname,
+        "print_format": print_format,
+        "pdf_size": len(pdf_bytes),
+        "file_url": file_url,
+        "file_name": file_name,
+        "pdf_base64": base64.b64encode(pdf_bytes).decode("utf-8"),
+    }
