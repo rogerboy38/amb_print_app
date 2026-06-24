@@ -10,9 +10,89 @@ Verified field bindings (PROD schema 2026-06-10):
   coa_quality_test_parameter             → child rows: parameter_name, specification (fallback: value),
                                            result, custom_is_title_row (L372/L373),
                                            custom_reconstituted_to_05_total_solids_solution → "*" + footnote
-  shelf_life / packaging / storage_and_handling_conditions (Text Editor, HTML) → page 3
+  [v4] page-3 narrative GENERATED from embedded canonical (lang x family); doc narrative fields not read
   autorizacion (Signature) → signature; T88 fallback: approved_by User.signature_image → user_image
 -#}
+{#- T113 v4 — language-aware: lang = doc.coa_language (default English), family from item
+    tokens (POWDER|SPRAY DRIED|200:1 -> powder, else liquid). Labels + narrative generated
+    from the embedded bilingual canonical (boilerplate-out-of-doc, L391). The stored
+    doc.shelf_life / packaging / storage_and_handling_conditions are NO LONGER read —
+    output is always single-language, family-correct. Param names stay English-canonical. -#}
+{%- set lang = "es" if doc.get("coa_language") == "Spanish" else "en" -%}
+{%- set _fam_blob = ((doc.item_name or "") ~ " " ~ (doc.item_code or "")) | upper -%}
+{%- set fam = "powder" if ("POWDER" in _fam_blob or "SPRAY DRIED" in _fam_blob or "200:1" in _fam_blob) else "liquid" -%}
+{%- set labels = {
+ "en": {
+  "title": "CERTIFICATE OF ANALYSIS",
+  "product_name": "PRODUCT NAME",
+  "lot_code": "LOT CODE",
+  "mnfr_date": "MNFR. DATE",
+  "inci": "INCI NAME",
+  "cas": "CAS NUMBER",
+  "h_parameter": "PARAMETER",
+  "h_spec": "SPECIFICATION",
+  "h_result": "RESULT",
+  "shelf_life": "SHELF LIFE:",
+  "packaging": "PACKAGING:",
+  "storage": "STORAGE AND HANDLING CONDITIONS:",
+  "md": "M.D.",
+  "ed": "E.D.",
+  "footnote": "*RECONSTITUTED TO 0.5% TOTAL SOLIDS SOLUTION.",
+  "sec_organoleptic": "ORGANOLEPTIC",
+  "sec_physicochemical": "PHYSICOCHEMICAL",
+  "sec_microbiological": "MICROBIOLOGICAL",
+  "sec_other": "OTHER ANALYSIS"
+ },
+ "es": {
+  "title": "CERTIFICADO DE ANÁLISIS",
+  "product_name": "NOMBRE DEL PRODUCTO",
+  "lot_code": "CÓDIGO DE LOTE",
+  "mnfr_date": "FECHA DE FABRICACIÓN",
+  "inci": "NOMBRE INCI",
+  "cas": "NÚMERO CAS",
+  "h_parameter": "PARÁMETRO",
+  "h_spec": "ESPECIFICACIÓN",
+  "h_result": "RESULTADO",
+  "shelf_life": "VIDA ÚTIL:",
+  "packaging": "EMBALAJE:",
+  "storage": "CONDICIONES DE ALMACENAMIENTO Y MANIPULACIÓN:",
+  "md": "F.F.",
+  "ed": "F.C.",
+  "footnote": "*RECONSTITUIDO A UNA SOLUCIÓN DE 0.5% DE SÓLIDOS TOTALES.",
+  "sec_organoleptic": "ORGANOLÉPTICO",
+  "sec_physicochemical": "FISICOQUÍMICO",
+  "sec_microbiological": "MICROBIOLÓGICO",
+  "sec_other": "OTROS ANÁLISIS"
+ }
+} -%}
+{%- set narrative = {
+ "powder": {
+  "en": {
+   "shelf_life": "24 months after date of production in an unopened container, in a fresh and dry place, without exposure to sunlight. Incorrect handling of material could cause contamination of the product. After the packaging of the product is opened, shelf life is not guaranteed and it is the costumer's responsibility having proper storage conditions and handling of the powder.",
+   "packaging": "Standard packaging: 25kg, double polyethylene bags inside a fiber drum. Other packaging: 1kg, 2kg, 5kg and 10kg; we can also customize the packaging size that better fits your production needs.",
+   "storage": "Product is highly hygroscopic; it must be stored in a dry place. Special measures must be taken for countries with a relative humidity level above 45% to avoid caking. The use of desiccant material is recommended. Unused portions should be kept in an airtight container, and should not be exposed to a moist environment. A recommendation about stacking: the maximum stacking level is of 4 drums; if you pile more than 4 drums it will cause the bottom fiber drum to crack. Wrong handling of our packaging can result in the damage of the quality of the product. Product damage because of forklift hits can produce leaks."
+  },
+  "es": {
+   "shelf_life": "24 meses después de la fecha de producción, en un envase sin abrir, en un lugar fresco y seco, protegido de la luz solar. El manejo inadecuado del producto puede provocar su contaminación. Una vez abierto el envase, no se garantiza su vida útil y es responsabilidad del cliente mantener las condiciones de almacenamiento y manipulación adecuadas del producto.",
+   "packaging": "Embalaje estándar: 25 kg, bolsas dobles de polietileno dentro de un bidón de fibra. Otros formatos: 1 kg, 2 kg, 5 kg y 10 kg; también podemos personalizar el tamaño del embalaje para que se ajuste mejor a sus necesidades de producción.",
+   "storage": "El producto es altamente higroscópico; debe almacenarse en un lugar seco. Se deben tomar medidas especiales en países con un nivel de humedad relativa superior al 45% para evitar que se apelmace. Se recomienda el uso de material desecante. Las porciones no utilizadas deben guardarse en un recipiente hermético y no deben exponerse a un ambiente húmedo. Recomendación sobre el apilamiento: el nivel máximo de apilamiento es de 4 bidones; si se apilan más de 4 bidones, la base de fibra del bidón podría agrietarse. Un manejo incorrecto de nuestro embalaje puede dañar la calidad del producto. Los daños causados por golpes de montacargas pueden producir fugas."
+  }
+ },
+ "liquid": {
+  "en": {
+   "shelf_life": "6 months after date of production when refrigerated from 0°C - 2°C in an unopened container and out of the exposure of the sunlight to avoid oxidation. 12 months after date of production when frozen at -18°C in an unopened container and out of the exposure of the sunlight to avoid oxidation. Once the packaging of any Aloe Vera product is opened the product enters into contact with air's humidity and microbes, so it is recommended to use the whole product amount to avoid the spoilage of it. As it is a natural product it may change color and precipitation can occur after a period of time.",
+   "packaging": "Standard packaging: HDPE drum, closed top, Food grade FDA approved.",
+   "storage": "In case the whole product is not used, it is recommended to store it in a refrigerated warehouse at a temperature of 0° to 2° C or frozen at -18°C until the next use. We strongly suggest not to take back to the original container unused portions of the product that have been exposed to the environment. Once the packaging of the product is opened, shelf life is not guaranteed and it is the costumer's responsibility to avoid spoilage. Aseptic techniques are mandatory for sampling and industrial use."
+  },
+  "es": {
+   "shelf_life": "6 meses después de la fecha de producción cuando se refrigera de 0°C a 2°C en un envase sin abrir y sin exposición a la luz solar para evitar la oxidación. 12 meses después de la fecha de producción cuando se congela a -18°C en un envase sin abrir y sin exposición a la luz solar para evitar la oxidación. Una vez abierto el envase de cualquier producto de Aloe Vera, el producto entra en contacto con la humedad del aire y los microbios, por lo que se recomienda utilizar la totalidad del producto para evitar su deterioro. Al ser un producto natural, puede cambiar de color y puede producirse precipitación después de un período de tiempo.",
+   "packaging": "Embalaje estándar: bidón de HDPE, tapa cerrada, grado alimenticio aprobado por la FDA.",
+   "storage": "En caso de no utilizar todo el producto, se recomienda almacenarlo en un almacén refrigerado a una temperatura de 0° a 2° C o congelado a -18°C hasta el siguiente uso. Recomendamos enfáticamente no devolver al envase original las porciones no utilizadas del producto que hayan estado expuestas al ambiente. Una vez abierto el envase del producto, no se garantiza su vida útil y es responsabilidad del cliente evitar su deterioro. Las técnicas asépticas son obligatorias para el muestreo y el uso industrial."
+  }
+ }
+} -%}
+{%- set L = labels[lang] -%}
+{%- set N = narrative[fam][lang] -%}
 <style>
     .coa-body { font-family: Calibri, 'Segoe UI', sans-serif; font-size: 9.5pt; color: #000; }
     .coa-header { width: 100%; margin-bottom: 4px; }
@@ -40,10 +120,16 @@ Verified field bindings (PROD schema 2026-06-10):
     .coa-continue { text-align: center; font-size: 9pt; margin-top: 18px; }
     .coa-section-h { font-weight: bold; font-size: 9.5pt; margin: 14px 0 3px 0; }
     .coa-section-p, .coa-section-p p { font-size: 9pt; line-height: 1.35; margin: 0 0 4px 0; }
+    .coa-status { text-align:center; font-weight:bold; font-size:11pt; letter-spacing:1px; margin:6px 0 2px 0; }
+    .coa-status.draft { color:#b00000; }
+    .coa-status.cert { color:#1a7a1a; }
+    .coa-warn { border:1.4px solid #b00000; background:#fdeaea; color:#7a0000; font-size:8.5pt; padding:6px 10px; margin:4px 0 8px 0; }
+    .coa-approval { font-size:9.5pt; margin-top:16px; line-height:1.55; }
+    .coa-approval .coa-sigline { margin-top:2px; }
 </style>
 
-{%- set batch = frappe.db.get_value("Batch", doc.batch_reference,
-        ["manufacturing_date", "expiry_date"], as_dict=True) if doc.batch_reference else None -%}
+{%- set batch = frappe.db.get_value("Batch AMB", doc.batch_reference,
+        ["production_end_date", "expiry_date", "custom_golden_number"], as_dict=True) if doc.batch_reference else None -%}
 
 {#- T88 signature fallback chain (T90.3 doctrine, resolved against the APPROVER not the printer) -#}
 {%- set sig = doc.autorizacion
@@ -51,6 +137,20 @@ Verified field bindings (PROD schema 2026-06-10):
         or (frappe.db.get_value("User", doc.approved_by, "user_image") if doc.approved_by else None) -%}
 {#- guard: UI placeholder path is not a signature; broken img = hard PDF failure on wkhtmltopdf -#}
 {%- if sig and "placeholder" in sig %}{% set sig = None %}{% endif -%}
+{#- ===== DRAFT/CERTIFIED gate + footnote date parse ===== -#}
+{%- set _foot = doc.get("custom_coa_footnote") or "" -%}
+{%- set cert = namespace(md=None, ed=None, miss="") -%}
+{%- for _ln in _foot.splitlines() -%}
+  {%- if "M.D." in _ln %}{%- set cert.md = _ln.split("M.D.",1)[1].strip() -%}{%- endif -%}
+  {%- if "E.D." in _ln %}{%- set cert.ed = _ln.split("E.D.",1)[1].strip() -%}{%- endif -%}
+{%- endfor -%}
+{%- if (doc.overall_result or "") != "Pass" %}{%- set cert.miss = cert.miss ~ "all tests passing (now: " ~ (doc.overall_result or "Pending") ~ "); " -%}{%- endif -%}
+{%- if not cert.md %}{%- set cert.miss = cert.miss ~ "manufacture/expiry dates (M.D./E.D.); " -%}{%- endif -%}
+{%- if not sig %}{%- set cert.miss = cert.miss ~ "authorized signature; " -%}{%- endif -%}
+{%- if not doc.approval_date %}{%- set cert.miss = cert.miss ~ "approval date; " -%}{%- endif -%}
+{%- if not doc.approved_by %}{%- set cert.miss = cert.miss ~ "approver; " -%}{%- endif -%}
+{%- if not doc.custom_version %}{%- set cert.miss = cert.miss ~ "COA version; " -%}{%- endif -%}
+{%- set is_certified = (cert.miss == "") -%}
 
 {%- macro page_header() -%}
 <table class="coa-header"><tr>
@@ -65,15 +165,15 @@ Verified field bindings (PROD schema 2026-06-10):
     </td>
     <td class="coa-pageno"></td> {#- wkhtmltopdf page numbers come from Frappe's footer html; see JSON -#}
 </tr></table>
-<div class="coa-title">CERTIFICATE OF ANALYSIS</div>
-{% if doc.inci_name %}<div class="coa-subline">INCI NAME : {{ doc.inci_name | upper }}</div>{% endif %}
-{% if doc.cas_number %}<div class="coa-subline">CAS NUMBER : {{ doc.cas_number }}</div>{% endif %}
+<div class="coa-title">{{ L.title }}</div>
+{% if doc.inci_name %}<div class="coa-subline">{{ L.inci }} : {{ doc.inci_name | upper }}</div>{% endif %}
+{% if doc.cas_number %}<div class="coa-subline">{{ L.cas }} : {{ doc.cas_number }}</div>{% endif %}
 <table class="coa-identity">
-    <tr><td class="lbl">PRODUCT NAME</td><td>{{ (doc.item_name or "") | upper }}</td></tr>
-    <tr><td class="lbl">LOT CODE</td><td>{{ doc.batch_reference or doc.custom_golden_number or "" }}</td></tr>
-    {%- set mnfr = (batch.manufacturing_date if batch else None) or doc.approval_date %}
-    {% if mnfr %}
-    <tr><td class="lbl">MNFR. DATE</td><td>{{ frappe.utils.formatdate(mnfr, "dd/MM/yy") }}</td></tr>
+    <tr><td class="lbl">{{ L.product_name }}</td><td>{{ (doc.item_name or "") | upper }}</td></tr>
+    <tr><td class="lbl">{{ L.lot_code }}</td><td>{{ doc.batch_reference or doc.custom_golden_number or "" }}</td></tr>
+    {%- set mnfr_raw = cert.md or (batch.production_end_date if batch else None) or doc.approval_date %}
+    {% if mnfr_raw %}
+    <tr><td class="lbl">{{ L.mnfr_date }}</td><td>{{ mnfr_raw if cert.md else frappe.utils.formatdate(mnfr_raw, "dd/MM/yy") }}</td></tr>
     {% endif %}
 </table>
 {%- endmacro -%}
@@ -81,10 +181,12 @@ Verified field bindings (PROD schema 2026-06-10):
 <div class="coa-body">
 {{ page_header() }}
 
+<div class="coa-status {{ 'cert' if is_certified else 'draft' }}">{{ "CERTIFIED" if is_certified else "DRAFT - NOT CERTIFIED" }}</div>
+{% if not is_certified %}<div class="coa-warn">This COA is not yet certifiable. Missing: {{ cert.miss }}This PDF is marked DRAFT and is not valid as a certificate until complete.</div>{% endif %}
 {%- set ns = namespace(has_footnote=false) -%}
 <table class="coa-params">
     <thead>
-        <tr><th style="width:38%">PARAMETER</th><th style="width:34%">SPECIFICATION</th><th style="width:28%">RESULT</th></tr>
+        <tr><th style="width:38%">{{ L.h_parameter }}</th><th style="width:34%">{{ L.h_spec }}</th><th style="width:28%">{{ L.h_result }}</th></tr>
     </thead>
     <tbody>
     {#- Legacy field semantics (verified on sandbox data 2026-06-10):
@@ -111,33 +213,31 @@ Verified field bindings (PROD schema 2026-06-10):
 
 {% if doc.get("custom_coa_footnote") %}<div class="coa-footnote">
 {%- for ln in doc.custom_coa_footnote.splitlines() %}{% if ln.strip() %}{{ ln.strip() | upper }}<br>{% endif %}{% endfor %}</div>
-{% elif ns.has_footnote %}<div class="coa-footnote">*RECONSTITUTED TO 0.5% TOTAL SOLIDS SOLUTION.</div>{% endif %}
+{% elif ns.has_footnote %}<div class="coa-footnote">{{ L.footnote }}</div>{% endif %}
 
 {%- set legacy_dates = doc.get("custom_coa_footnote") and "M.D." in doc.custom_coa_footnote %}
 {%- set md = (batch.manufacturing_date if batch else None) or doc.approval_date %}
 {% if md and not legacy_dates %}
 <div class="coa-dates">
-    M.D. {{ frappe.utils.formatdate(md, "dd/MM/yy") }}<br>
-    {% if batch and batch.expiry_date %}E.D. {{ frappe.utils.formatdate(batch.expiry_date, "dd/MM/yy") }}{% endif %}
+    {{ L.md }} {{ frappe.utils.formatdate(md, "dd/MM/yy") }}<br>
+    {% if batch and batch.expiry_date %}{{ L.ed }} {{ frappe.utils.formatdate(batch.expiry_date, "dd/MM/yy") }}{% endif %}
 </div>
 {% endif %}
 
-{% if sig %}
-<div class="coa-signature"><img src="{{ sig }}"></div>
-{% endif %}
+<div class="coa-approval">
+{% if doc.custom_version %}<div>V{{ doc.custom_version }}</div>{% endif %}
+{% if doc.approval_date %}<div>APPROVAL Date: {{ frappe.utils.formatdate(doc.approval_date, "dd/MM/yyyy") }}</div>{% endif %}
+{% if sig %}<div class="coa-signature"><img src="{{ sig }}"></div>{% endif %}
+<div class="coa-sigline">_________________________________________</div>
+<div>Approved By: Ing. {{ (frappe.db.get_value("User", doc.approved_by, "full_name") or "Daniel Flores") if doc.approved_by else "Daniel Flores" }} / Signatured</div>
+</div>
 
-{%- if doc.shelf_life or doc.packaging or doc.storage_and_handling_conditions %}
+{#- T113 v4: narrative always generated from canonical N (family x language); stored doc
+    narrative fields intentionally ignored so legacy Spanish/wrong-family data is irrelevant. -#}
 <div style="page-break-before: always;"></div>
 {{ page_header() }}
-{% if doc.shelf_life %}
-<div class="coa-section-h">SHELF LIFE:</div><div class="coa-section-p">{{ doc.shelf_life | safe }}</div>
-{% endif %}
-{% if doc.packaging %}
-<div class="coa-section-h">PACKAGING:</div><div class="coa-section-p">{{ doc.packaging | safe }}</div>
-{% endif %}
-{% if doc.storage_and_handling_conditions %}
-<div class="coa-section-h">STORAGE AND HANDLING CONDITIONS:</div>
-<div class="coa-section-p">{{ doc.storage_and_handling_conditions | safe }}</div>
-{% endif %}
-{%- endif %}
+<div class="coa-section-h">{{ L.shelf_life }}</div><div class="coa-section-p">{{ N.shelf_life }}</div>
+<div class="coa-section-h">{{ L.packaging }}</div><div class="coa-section-p">{{ N.packaging }}</div>
+<div class="coa-section-h">{{ L.storage }}</div>
+<div class="coa-section-p">{{ N.storage }}</div>
 </div>
