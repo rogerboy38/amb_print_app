@@ -127,17 +127,16 @@ Verified field bindings (vm3 schema + sample docs 2026-06-12):
 
 {% if ns.has_footnote %}<div class="tds-footnote">{{ doc.formula_based_criteria or "*RECONSTITUTED TO 0.5% TOTAL SOLIDS SOLUTION." }}</div>{% endif %}
 
-<div class="tds-continue">Continue next page :</div>
 {% if doc.tds_version %}<div class="tds-version">Ver. {{ doc.tds_version }}</div>{% endif %}
 
-{#- ---------- page 2 : narrative (family-aware) ---------- -#}
-<div style="page-break-before: always;"></div>
-{{ page_header() }}
+{#- ---------- narrative (family-aware) — flows after the table; kept together as one block ---------- -#}
+<div style="page-break-inside: avoid; margin-top:14px;">
 <div class="tds-section-h">SHELF LIFE:</div>
 <div class="tds-section-p">{{ N.shelf_life }}</div>
 <div class="tds-section-h">PACKAGING:</div>
 <div class="tds-section-p">{{ N.packaging }}</div>
 <div class="tds-section-h">STORAGE AND HANDLING CONDITIONS:</div>
 <div class="tds-section-p">{{ N.storage }}</div>
+</div>
 {% if doc.tds_version %}<div class="tds-version">Ver. {{ doc.tds_version }}</div>{% endif %}
 </div>
