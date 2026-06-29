@@ -216,11 +216,12 @@ Verified field bindings (PROD schema 2026-06-10):
     </tbody>
 </table>
 
-{% if doc.get("custom_coa_footnote") %}<div class="coa-footnote">
-{%- for ln in doc.custom_coa_footnote.splitlines() %}{% if ln.strip() %}{{ ln.strip() | upper }}<br>{% endif %}{% endfor %}</div>
-{% elif doc.get("formula_based_criteria") %}<div class="coa-footnote">
+{# #36b print formula_based_criteria and custom_coa_footnote as INDEPENDENT blocks (dedup custom lines already shown in formula) #}
+{% if doc.get("formula_based_criteria") %}<div class="coa-footnote">
 {%- for ln in doc.formula_based_criteria.splitlines() %}{% if ln.strip() %}{{ ln.strip() | upper }}<br>{% endif %}{% endfor %}</div>
 {% elif ns.has_footnote %}<div class="coa-footnote">{{ L.footnote }}</div>{% endif %}
+{% if doc.get("custom_coa_footnote") %}<div class="coa-footnote">
+{%- for ln in doc.custom_coa_footnote.splitlines() %}{% if ln.strip() and not (doc.get("formula_based_criteria") and ln.strip() in doc.formula_based_criteria) %}{{ ln.strip() | upper }}<br>{% endif %}{% endfor %}</div>{% endif %}
 
 {%- set legacy_dates = doc.get("custom_coa_footnote") and "M.D." in doc.custom_coa_footnote %}
 {%- set md = (batch.manufacturing_date if batch else None) or doc.approval_date %}
