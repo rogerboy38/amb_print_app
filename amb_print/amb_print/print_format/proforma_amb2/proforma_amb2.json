@@ -26,7 +26,7 @@
  "print_format_builder": 0,
  "print_format_builder_beta": 0,
  "print_format_type": "Jinja",
- "raw_printing": 1,
+ "raw_printing": 0,
  "show_section_headings": 0,
  "standard": "Yes"
 }
