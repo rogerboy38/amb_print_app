@@ -25,6 +25,11 @@
             "label": "Run Migration"
         },
         {
+            "fieldname": "migrate_single_document",
+            "fieldtype": "Button",
+            "label": "Migrate Single Document"
+        },
+        {
             "fieldname": "section_status",
             "fieldtype": "Section Break",
             "label": "Status"
@@ -53,5 +58,5 @@
     "permissions": [
         {"role": "System Manager", "read": 1, "write": 1}
     ],
-    "modified": "2026-01-22 00:00:00.000000"
+    "modified": "2026-08-03 23:37:47.690169"
 }

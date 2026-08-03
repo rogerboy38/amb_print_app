@@ -96,3 +96,36 @@ def trigger_migration():
         job_name="print_format_migration"
     )
     return {"status": "queued", "message": _("Migration job queued")}
+
+
+@frappe.whitelist()
+def migrate_single_document(doctype, docname):
+    """On-demand replacement for the retired nightly cron.
+
+    One document, rendered and ATTACHED (not discarded, not merely returned). The
+    nightly job existed to produce artefacts and produced none; this produces exactly
+    one, on request, with the file_url returned so the caller can prove it landed.
+    """
+    if not doctype or not docname:
+        frappe.throw(_("Both doctype and docname are required"))
+    if not frappe.db.exists(doctype, docname):
+        frappe.throw(_("{0} {1} not found").format(doctype, docname))
+    # Permission is checked against the TARGET document, not against Print Migration Job:
+    # rendering a document exposes its contents, so the caller must be able to read it.
+    if not frappe.has_permission(doctype, "read", doc=docname):
+        frappe.throw(_("Not permitted to read {0} {1}").format(doctype, docname), frappe.PermissionError)
+
+    from amb_print.core.batch_processor import BatchProcessor
+
+    result = BatchProcessor()._process_single_document(doctype, docname, attach=True)
+    create_migration_log(
+        document_type=doctype,
+        status="Success" if result.get("attached") else "Failed",
+        error_message=None if result.get("attached") else "render produced no attachment",
+    )
+    return {
+        "status": "ok" if result.get("attached") else "no_attachment",
+        "doctype": doctype,
+        "docname": docname,
+        "file_url": result.get("file_url"),
+    }

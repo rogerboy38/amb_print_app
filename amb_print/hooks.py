@@ -39,13 +39,18 @@ fixtures = [
 ]
 
 # Scheduler Events
-scheduler_events = {
-    "cron": {
-        "0 2 * * *": [
-            "amb_print.tasks.scheduled_batch_migration"
-        ]
-    }
-}
+# RETIRED 2026-08-03: the nightly `0 2 * * *` cron ran
+# amb_print.tasks.scheduled_batch_migration, which rendered up to 100 documents per
+# configured doctype through Chromium every night and DISCARDED every PDF
+# (_process_single_document returned it; the caller dropped the return value, and
+# ERPNextAPI.upload_file was never called anywhere in core/). Replaced by an on-demand
+# single-document run: amb_print.tasks.migrate_single_document, button on Print
+# Migration Job.
+#
+# NOTE: removing this hook does NOT retire the existing `Scheduled Job Type` row —
+# that row keeps firing until it is stopped. The companion patch
+# amb_print.amb_print.patches.v16_retire_nightly.retire_scheduled_batch_migration
+# sets stopped=1 so both halves travel together in one change.
 
 # Background job queues
 queues = {
