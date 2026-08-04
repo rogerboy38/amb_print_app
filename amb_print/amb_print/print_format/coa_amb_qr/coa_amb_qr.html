@@ -25,7 +25,7 @@ Verified field bindings (PROD schema 2026-06-10):
  "en": {
   "title": "CERTIFICATE OF ANALYSIS",
   "product_name": "PRODUCT NAME",
-  "lot_code": "LOT CODE",
+  "lot_code": "LOTE DE VENTA",
   "mnfr_date": "MNFR. DATE",
   "inci": "INCI NAME",
   "cas": "CAS NUMBER",
@@ -48,7 +48,7 @@ Verified field bindings (PROD schema 2026-06-10):
  "es": {
   "title": "CERTIFICADO DE ANÁLISIS",
   "product_name": "NOMBRE DEL PRODUCTO",
-  "lot_code": "CÓDIGO DE LOTE",
+  "lot_code": "LOTE DE VENTA",
   "mnfr_date": "FECHA DE FABRICACIÓN",
   "inci": "NOMBRE INCI",
   "cas": "NÚMERO CAS",
@@ -155,7 +155,7 @@ Verified field bindings (PROD schema 2026-06-10):
 {% if doc.cas_number %}<div class="coa-subline">{{ L.cas }} : {{ doc.cas_number }}</div>{% endif %}
 <table class="coa-identity">
     <tr><td class="lbl">{{ L.product_name }}</td><td>{{ (doc.item_name or "") | upper }}</td></tr>
-    <tr><td class="lbl">{{ L.lot_code }}</td><td>{{ doc.batch_reference or doc.custom_golden_number or "" }}</td></tr>
+    <tr><td class="lbl">{{ L.lot_code }}</td><td>{{ doc.custom_golden_number or doc.batch_reference or "" }}</td></tr>
     {%- set mnfr = (batch.manufacturing_date if batch else None) or doc.approval_date %}
     {% if mnfr %}
     <tr><td class="lbl">{{ L.mnfr_date }}</td><td>{{ frappe.utils.formatdate(mnfr, "dd/MM/yy") }}</td></tr>
