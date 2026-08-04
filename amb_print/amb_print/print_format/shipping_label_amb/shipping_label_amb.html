@@ -1,9 +1,9 @@
 {#- Shipping Label AMB - portrait/vertical, 2x2 = 4 per Letter sheet. Source-agnostic. -#}
-{%- set glc = frappe.get_attr("amb_print.amb_print.label.context.get_label_context") -%}
-{%- set bc  = frappe.get_attr("amb_print.amb_print.utils.barcode.barcode_svg") -%}
-{%- set qr  = frappe.get_attr("amb_print.amb_print.utils.barcode.qr_data_uri") -%}
-{%- set ctx = glc(doc.doctype, doc.name) -%}
-{%- set rows = ctx.barrels if ctx.barrels else [None] -%}
+
+{%- set bc = barcode_svg -%}
+{%- set qr = qr_data_uri -%}
+{%- set ctx = doc.get("label_ctx") or {} -%}
+{%- set rows = ctx["items"] if ctx["items"] else [None] -%}
 <style>
   @page{size:Letter;margin:0;}
   html,body{margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
@@ -15,20 +15,18 @@
   .sl-codes svg{width:88mm;height:14mm;display:block;margin:1mm auto 0;}
   .sl-cert{margin-top:3mm;font-size:7pt;text-align:center;}
 </style>
-{%- for b in rows %}
+{%- for s in rows %}
 <div class="ship-label">
-  <div class="sl-field"><b>EXPORTER AND MANUFACTURER:</b></div>
-  <div class="sl-field">{{ ctx.exporter }}</div>
-  <div class="sl-field">CONSIGNE : {{ ctx.consignee or "" }}</div>
-  <div class="sl-field">PRODUCT : {{ ctx.product or "" }}</div>
-  <div class="sl-field">LOT : {{ (b.lot if b and b.lot else ctx.lot) or "" }}</div>
-  <div class="sl-field">M.D. {{ (b.mfg_date if b else "") or "" }} &nbsp; E.D. {{ (b.exp_date if b else "") or "" }}</div>
-  <div class="sl-field">P.O. {{ ctx.po or "" }}</div>
-  <div class="sl-field">NET WEIGHT : {{ ("%.1f"|format(b.net_weight) if b and b.net_weight else "***") }} KGS.</div>
-  <div class="sl-field"><b>AMB CONTROL NUMBER : # {{ ctx.control_number or "" }}</b></div>
+  <div class="sl-field"><b>EXPORTER AND MANUFACTURER:</b> {{ ctx.exporter }}</div>
+  <div class="sl-field"><b>CUSTOMER :</b> {{ ctx.customer_name or ctx.customer or "" }}{% if ctx.address %} - {{ ctx.address }}{% endif %}</div>
+  <div class="sl-field">PRODUCT : {{ (s.item_name if s else "") or ctx.product or "" }}</div>
+  <div class="sl-field">QUANTITY : {{ (s.qty if s else "") or "" }}</div>
+  <div class="sl-field"><b>LOTE DE VENTA : {{ doc.get("label_lote_de_venta") or "" }}</b></div>
+  <div class="sl-field">M.D. {{ ctx.mfg_date or "" }} &nbsp; E.D. {{ ctx.exp_date or "" }}</div>
+  <div class="sl-field"><b>AMB CONTROL NUMBER : {{ (s.control_number if s else "") or "" }}</b></div>
   <div class="sl-codes">
-    <img src="{{ qr(b.serial if b else ctx.lot) }}">
-    {{ bc(ctx.golden_number, "code128", module_height=10, module_width=0.3) | safe }}
+    <img src="{{ qr((s.control_number if s else "") or doc.name) }}">
+    {{ bc(doc.get("label_lote_de_venta") or "", "code128", module_height=10, module_width=0.3) | safe }}
   </div>
   <div class="sl-cert">CERTIFIED AS 100% ORGANIC<br>BY ECOCERT GREENLIFE ACCORDING TO COSMOS STANDARD</div>
 </div>

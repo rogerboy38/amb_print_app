@@ -36,7 +36,7 @@
 {% set _pages = ((_total + _per_page - 1) // _per_page) if _total else 1 %}
 
 {# Batch-level constants — fall through field-name candidates #}
-{% set _cliente = frappe.get_attr("amb_print.amb_print.label.context.get_label_context")(doc.doctype, doc.name).consignee or doc.customer or "" %}
+{% set _cliente = doc.get("label_consignee") or doc.customer or "" %}
 {% set _batch   = doc.name or "[BATCH name missing]" %}
 
 <!-- JsBarcode CDN: Chromium evaluates this before PDF capture. -->
@@ -117,7 +117,7 @@
         <div class="label-content">
           <div class="cunete-header">AGROMAYAL BOTANICA SA DE CV</div>
           <div class="field-block"><span class="label-name">PRODUCTO:</span> {{ row.label_item_name or "" }}</div>
-          <div class="field-block"><span class="label-name">LOTE:</span> {{ row.label_lot or "" }}</div>
+          <div class="field-block"><span class="label-name">LOTE DE VENTA:</span> {{ doc.get("label_lote_de_venta") or row.label_lot or "" }}</div>
           <div class="field-block"><span class="label-name">BATCH:</span> {{ _batch }}</div>
           <div class="field-block"><span class="label-name">PESO:</span> {{ "%.1f"|format(row.net_weight or 0) }} KG</div>
           <div class="field-block"><span class="label-name">CLIENTE:</span> {{ _cliente }}</div>

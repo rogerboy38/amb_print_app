@@ -1,10 +1,10 @@
 {#- Shipping Label Box (amb_print) - ONE shipment-level label for the outer carton.
     Shipment totals (barrels + net) from get_label_context; QR + Code128 of the
-    control/golden key. Source-agnostic. Helpers via frappe.get_attr. -#}
-{%- set glc = frappe.get_attr("amb_print.amb_print.label.context.get_label_context") -%}
-{%- set bc  = frappe.get_attr("amb_print.amb_print.utils.barcode.barcode_svg") -%}
-{%- set qr  = frappe.get_attr("amb_print.amb_print.utils.barcode.qr_data_uri") -%}
-{%- set ctx = glc(doc.doctype, doc.name) -%}
+    control/golden key. Source-agnostic. Helpers via registered jinja methods + before_print label_ctx (SR-1). -#}
+
+{%- set bc = barcode_svg -%}
+{%- set qr = qr_data_uri -%}
+{%- set ctx = doc.get("label_ctx") or {} -%}
 {%- set nb = (ctx.barrels|length) if ctx.barrels else 0 -%}
 {%- set totnet = (ctx.barrels|sum(attribute='net_weight')) if ctx.barrels else 0 -%}
 {%- set key = ctx.control_number or ctx.golden_number or ctx.lot or "" -%}
@@ -22,18 +22,16 @@
 <div class="box-label">
   <div class="box-codes">
     <img src="{{ qr(key) }}">
-    {{ bc(ctx.golden_number, "code128", module_height=11, module_width=0.33) | safe }}
+    {{ bc(doc.get("label_lote_de_venta") or ctx.golden_number or "", "code128", module_height=11, module_width=0.33) | safe }}
   </div>
   <div class="box-body">
     <div class="box-title">SHIPPING / EXTERNAL BOX LABEL</div>
     <div class="box-field"><b>EXPORTER AND MANUFACTURER:</b> {{ ctx.exporter }}</div>
-    <div class="box-field"><b>CONSIGNE :</b> {{ ctx.consignee or "" }}</div>
-    <div class="box-field"><b>PRODUCT :</b> {{ ctx.product or "" }}</div>
-    <div class="box-field"><b>LOT :</b> {{ ctx.lot or "" }}</div>
-    <div class="box-field"><b>AMB CONTROL / GOLDEN :</b> {{ key }}</div>
-    <div class="box-field"><b>P.O. :</b> {{ ctx.po or "" }}</div>
-    <div class="box-field"><b>TOTAL BARRELS / CONTAINERS :</b> {{ nb }}</div>
-    <div class="box-field"><b>TOTAL NET WEIGHT :</b> {{ "%.1f"|format(totnet) }} KGS.</div>
+    <div class="box-field"><b>CUSTOMER :</b> {{ ctx.customer_name or ctx.customer or "" }}{% if ctx.address %} - {{ ctx.address }}{% endif %}</div>
+    <div class="box-field"><b>PRODUCT :</b> {{ ctx.product or (ctx["items"][0].item_name if ctx["items"] else "") or "" }}</div>
+    <div class="box-field"><b>QUANTITY :</b> {{ (ctx["items"]|sum(attribute='qty')) if ctx["items"] else "" }}</div>
+    <div class="box-field"><b>LOTE DE VENTA :</b> {{ doc.get("label_lote_de_venta") or "" }}</div>
+    <div class="box-field"><b>M.D. :</b> {{ ctx.mfg_date or "" }} &nbsp;&nbsp; <b>E.D. :</b> {{ ctx.exp_date or "" }}</div>
   </div>
   <div class="box-cert">CERTIFIED AS 100% ORGANIC BY ECOCERT GREENLIFE ACCORDING TO COSMOS STANDARD</div>
 </div>

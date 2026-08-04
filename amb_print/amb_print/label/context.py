@@ -118,12 +118,17 @@ def get_label_context(doctype, docname):
         batch = doc.get("batch_reference")
         if batch and frappe.db.exists("Batch AMB", batch):
             ctx["lot"] = batch
-            _load_barrels_from_batch(ctx, frappe.get_doc("Batch AMB", batch))
+            bdoc = frappe.get_doc("Batch AMB", batch)
+            _load_barrels_from_batch(ctx, bdoc)
+            # SR-1 (a): M.D./E.D. derived from the batch; blank-clean when batch unset.
+            ctx["mfg_date"] = _first(bdoc, "manufacturing_date", "production_end_date")
+            ctx["exp_date"] = bdoc.get("expiry_date")
         for r in (doc.get("samples") or []):
             ctx["items"].append({
                 "item": _first(r, "item_code", "item"),
-                "item_name": r.get("item_name"),
-                "qty": r.get("qty") or r.get("quantity"),
+                "item_name": r.get("item_name") or r.get("description"),
+                "qty": r.get("total_qty") or r.get("samples_count") or r.get("qty"),
+                "control_number": r.get("control_number"),
             })
 
     elif doctype == "Sales Order":
@@ -205,3 +210,23 @@ def get_label_context(doctype, docname):
         ctx["control_number"] = ctx.get("golden_number")
 
     return ctx
+
+
+def set_label_fields(doc, method=None, print_settings=None):
+    """before_print hook (F-SR1-A): resolve the label context server-side and stash
+    the consignee on the in-memory doc, so label print formats read
+    ``doc.label_consignee`` instead of calling ``frappe.get_attr`` in Jinja (which the
+    Frappe 16 safe-exec sandbox blocks). Scoped to the doc being printed — the print
+    path already enforces read permission on it (printview.validate_print_permission),
+    so this adds no data-read surface. Best-effort: never break a print."""
+    try:
+        ctx = get_label_context(doc.doctype, doc.name)
+        doc.label_consignee = ctx.get("consignee")
+        # SR-1 D1: lote de venta = the COA-authoritative golden the resolver already
+        # sources one-hop from the linked COA (SR.coa_amb) / the batch golden.
+        doc.label_lote_de_venta = ctx.get("golden_number")
+        # Box/shipping labels use the full context dict; expose it so they read
+        # doc.label_ctx.* instead of calling the resolver via frappe.get_attr.
+        doc.label_ctx = ctx
+    except Exception:
+        frappe.log_error(frappe.get_traceback(), "amb_print set_label_fields")

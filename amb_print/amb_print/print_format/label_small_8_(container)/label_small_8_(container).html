@@ -135,7 +135,7 @@ No barcode, no serial number printed (small format).
             {% if row %}
             <div class="label-content">
                 <div class="item-name">{{ row.label_item_name or "" }}</div>
-                <div class="lot">LOTE: {{ row.label_lot or "" }}</div>
+                <div class="lot">LOTE DE VENTA: {{ doc.get("label_lote_de_venta") or row.label_lot or "" }}</div>
                 <div class="dates">M.D. {{ row.label_manufacture_date or "" }} &nbsp;&nbsp; E.D. {{ row.label_expiration_date or "" }}</div>
                 <div class="net-weight">NET WEIGHT: {{ fmt_weight(row.net_weight) }}</div>
                 {% if row.label_sample_tag %}

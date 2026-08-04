@@ -1,8 +1,8 @@
 {#- Shipping Label 4up (amb_print) - 2x2 per-barrel export labels on Letter, cut lines. -#}
-{%- set glc = frappe.get_attr("amb_print.amb_print.label.context.get_label_context") -%}
-{%- set bc  = frappe.get_attr("amb_print.amb_print.utils.barcode.barcode_svg") -%}
-{%- set qr  = frappe.get_attr("amb_print.amb_print.utils.barcode.qr_data_uri") -%}
-{%- set ctx = glc(doc.doctype, doc.name) -%}
+
+{%- set bc = barcode_svg -%}
+{%- set qr = qr_data_uri -%}
+{%- set ctx = doc.get("label_ctx") or {} -%}
 {%- set rows = (ctx.barrels or []) | selectattr("active","equalto",1) | list -%}
 {%- if not rows -%}{%- set rows = ctx.barrels or [] -%}{%- endif -%}
 {%- set per = 4 -%}
@@ -44,7 +44,7 @@
         <div class="f">M.D. {{ b.mfg_date or "" }} &nbsp; E.D. {{ b.exp_date or "" }}</div>
         <div class="f">P.O. {{ ctx.po or "" }}</div>
         <div class="f">NET WEIGHT : {{ ("%.1f"|format(b.net_weight) if b.net_weight else "***") }} KGS.</div>
-        <div class="f"><b>AMB CONTROL : # {{ ctx.control_number or "" }}</b></div>
+        <div class="f"><b>LOTE DE VENTA : {{ ctx.control_number or "" }}</b></div>
       </div>
       <div class="cert">CERTIFIED AS 100% ORGANIC - ECOCERT GREENLIFE / COSMOS STANDARD</div>
       {% endif %}

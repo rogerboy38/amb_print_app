@@ -56,9 +56,28 @@ queues = {
 }
 
 # Jinja Environment
-jenv = {
-    "methods": [],
+# SR-1: register the PURE barcode utilities (value-in -> svg/data-uri-out, no doc/db
+# access — verified) as jinja methods so label formats call them without the
+# safe-exec-blocked frappe.get_attr. The doc-reading resolver stays behind before_print.
+jinja = {
+    "methods": [
+        "amb_print.amb_print.utils.barcode.barcode_svg",
+        "amb_print.amb_print.utils.barcode.qr_data_uri",
+    ],
     "filters": []
+}
+
+# Document Events
+# F-SR1-A / SR-1: inject resolved label context onto the printed doc before print so
+# label formats read doc.label_* / doc.label_ctx instead of a sandbox-blocked
+# frappe.get_attr. Covers both label families (bags = Batch AMB, box = Sample Request AMB).
+doc_events = {
+    "Batch AMB": {
+        "before_print": "amb_print.amb_print.label.context.set_label_fields"
+    },
+    "Sample Request AMB": {
+        "before_print": "amb_print.amb_print.label.context.set_label_fields"
+    }
 }
 
 # Installation
