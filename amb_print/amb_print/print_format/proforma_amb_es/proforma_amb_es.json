@@ -5,7 +5,7 @@
  "css": "\n  body {\n    font-family: Arial, sans-serif;\n    font-size: 10pt;\n    padding: 20px;\n  }\n  .header {\n    text-align: center;\n    border-bottom: 2px solid #333;\n    padding-bottom: 10px;\n    margin-bottom: 20px;\n  }\n  .title {\n    font-size: 16pt;\n    font-weight: bold;\n    color: #2c3e50;\n  }\n  .info-table {\n    width: 100%;\n    border-collapse: collapse;\n    margin-bottom: 15px;\n  }\n  .info-table td {\n    padding: 8px;\n    border: 1px solid #ddd;\n    vertical-align: top;\n  }\n  .label {\n    font-weight: bold;\n    background: #f0f0f0;\n    width: 30%;\n  }\n  .goods-table {\n    width: 100%;\n    border-collapse: collapse;\n    margin-bottom: 15px;\n  }\n  .goods-table th {\n    background: #2c3e50;\n    color: white;\n    padding: 8px;\n    text-align: left;\n  }\n  .goods-table td {\n    padding: 8px;\n    border-bottom: 1px solid #ddd;\n  }\n  .signature {\n    margin-top: 50px;\n    border-top: 1px solid #333;\n    width: 200px;\n    padding-top: 10px;\n  }\n  .footer {\n    text-align: center;\n    margin-top: 30px;\n    font-size: 8pt;\n    color: #666;\n    border-top: 1px solid #ddd;\n    padding-top: 10px;\n  }\n\n\n\n",
  "custom_format": 1,
  "default_print_language": "es-MX",
- "disabled": 0,
+ "disabled": 1,
  "doc_type": "Sample Request AMB",
  "docstatus": 0,
  "doctype": "Print Format",
