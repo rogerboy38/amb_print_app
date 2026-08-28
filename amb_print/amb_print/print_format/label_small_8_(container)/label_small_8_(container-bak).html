@@ -6,6 +6,7 @@ Filter:         label_is_active == 1
 Layout:         Letter portrait (215.9mm x 279.4mm), 2 columns x 4 rows = 8 cells/page
 Pagination:     when more than 8 active barrels, page-break-after.
 Quantity:       AUTOMATIC from active row count (no manual label_qty needed).
+
 Per cell content (centered, matches BARENTZ-UK lab reference):
   1. Item name (bold black, all caps preserved)
   2. LOTE: <lot>
@@ -14,19 +15,16 @@ Per cell content (centered, matches BARENTZ-UK lab reference):
   5. Sample tag (red bold uppercase, only when set)
   6. "No commercial value. For sample use only"
   7. "PRODUCT OF MEXICO" (bold)
-No barcode, no serial number printed (small format).
 
-2026-08-28: cell geometry corrected to match the physical pre-printed
-AMB Wellness label stock (measured from AMB ETIQUETA CONVENCIONAL REV2.pdf
-dieline/artwork). Previous 105mm x 67.25mm edge-to-edge grid did not match
-the actual ~85mm x 65mm die-cut labels with ~18mm side margins and
-~10mm/4mm gutters — text was landing off the pre-printed blank zone.
+No barcode, no serial number printed (small format).
 #}
+
 {% set _all_rows = (doc.container_barrels or []) %}
 {% set _rows = _all_rows | selectattr("label_is_active", "equalto", 1) | list %}
 {% set _per_page = 8 %}
 {% set _total = _rows | length %}
 {% set _pages = ((_total + _per_page - 1) // _per_page) if _total else 1 %}
+
 <style>
     @page {
         size: 215.9mm 279.4mm;
@@ -42,8 +40,7 @@ the actual ~85mm x 65mm die-cut labels with ~18mm side margins and
         height: 279.4mm;
         display: flex;
         flex-direction: column;
-        gap: 4mm;
-        padding: 4mm 18mm 3.5mm 18mm;
+        padding: 5.2mm 2.95mm;
         margin: 0;
         box-sizing: border-box;
         page-break-after: always;
@@ -53,13 +50,12 @@ the actual ~85mm x 65mm die-cut labels with ~18mm side margins and
     }
     .label-row {
         display: flex;
-        gap: 10mm;
         width: 100%;
-        height: 65mm;
+        height: 67.25mm;
     }
     .label-cell {
-        width: 85mm;
-        height: 65mm;
+        width: 105mm;
+        height: 67.25mm;
         box-sizing: border-box;
         position: relative;
         overflow: hidden;
@@ -115,6 +111,7 @@ the actual ~85mm x 65mm die-cut labels with ~18mm side margins and
         display: none;
     }
 </style>
+
 {% macro fmt_weight(net_kg) -%}
     {%- set nk = net_kg or 0 -%}
     {%- if nk > 0 and nk < 1 -%}
@@ -123,6 +120,7 @@ the actual ~85mm x 65mm die-cut labels with ~18mm side margins and
         {{ "%.3f"|format(nk) }} kg
     {%- endif -%}
 {%- endmacro %}
+
 {% for page_idx in range(_pages) %}
 <div class="label-sheet">
     {% set _start = page_idx * _per_page %}
@@ -152,6 +150,7 @@ the actual ~85mm x 65mm die-cut labels with ~18mm side margins and
     {% endfor %}
 </div>
 {% endfor %}
+
 {% if _total == 0 %}
 <div style="padding: 30mm; font-family: Arial; font-size: 11pt; color: #666; text-align: center;">
     No active label rows on this Batch AMB.<br><br>
