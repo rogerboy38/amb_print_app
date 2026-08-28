@@ -1,0 +1,161 @@
+{# Label Small 8 (Container)
+=========================
+Target doctype: Batch AMB
+Iterates:       doc.container_barrels (Container Barrels child rows)
+Filter:         label_is_active == 1
+Layout:         Letter portrait (215.9mm x 279.4mm), 2 columns x 4 rows = 8 cells/page
+Pagination:     when more than 8 active barrels, page-break-after.
+Quantity:       AUTOMATIC from active row count (no manual label_qty needed).
+Per cell content (centered, matches BARENTZ-UK lab reference):
+  1. Item name (bold black, all caps preserved)
+  2. LOTE: <lot>
+  3. M.D. <date>  E.D. <date>
+  4. NET WEIGHT: auto-unit (g if <1kg, kg otherwise)
+  5. Sample tag (red bold uppercase, only when set)
+  6. "No commercial value. For sample use only"
+  7. "PRODUCT OF MEXICO" (bold)
+No barcode, no serial number printed (small format).
+
+2026-08-28: cell geometry corrected to match the physical pre-printed
+AMB Wellness label stock (measured from AMB ETIQUETA CONVENCIONAL REV2.pdf
+dieline/artwork). Previous 105mm x 67.25mm edge-to-edge grid did not match
+the actual ~85mm x 65mm die-cut labels with ~18mm side margins and
+~10mm/4mm gutters — text was landing off the pre-printed blank zone.
+#}
+{% set _all_rows = (doc.container_barrels or []) %}
+{% set _rows = _all_rows | selectattr("label_is_active", "equalto", 1) | list %}
+{% set _per_page = 8 %}
+{% set _total = _rows | length %}
+{% set _pages = ((_total + _per_page - 1) // _per_page) if _total else 1 %}
+<style>
+    @page {
+        size: 215.9mm 279.4mm;
+        margin: 0;
+    }
+    html, body {
+        margin: 0;
+        padding: 0;
+        font-family: Arial, Helvetica, sans-serif;
+    }
+    .label-sheet {
+        width: 215.9mm;
+        height: 279.4mm;
+        display: flex;
+        flex-direction: column;
+        gap: 4mm;
+        padding: 4mm 18mm 3.5mm 18mm;
+        margin: 0;
+        box-sizing: border-box;
+        page-break-after: always;
+    }
+    .label-sheet:last-child {
+        page-break-after: auto;
+    }
+    .label-row {
+        display: flex;
+        gap: 10mm;
+        width: 100%;
+        height: 65mm;
+    }
+    .label-cell {
+        width: 85mm;
+        height: 65mm;
+        box-sizing: border-box;
+        position: relative;
+        overflow: hidden;
+        border: 1px dashed #999;
+    }
+    .empty-cell {
+        border-style: dashed;
+        border-color: #ccc;
+    }
+    .label-content {
+        position: absolute;
+        top: 3mm;
+        left: 3mm;
+        right: 3mm;
+        bottom: 3mm;
+        font-size: 9pt;
+        line-height: 1.25;
+        text-align: center;
+    }
+    .label-content > div {
+        margin: 0;
+    }
+    .label-content .item-name {
+        font-size: 10pt;
+        font-weight: bold;
+        color: #000;
+        line-height: 1.15;
+        margin: 0;
+    }
+    .label-content .lot,
+    .label-content .dates,
+    .label-content .net-weight {
+        font-size: 9.5pt;
+        margin: 0;
+    }
+    .label-content .sample-tag {
+        font-size: 9.5pt;
+        font-weight: bold;
+        color: #c00000;
+        text-transform: uppercase;
+        margin: 0.5mm 0 0 0;
+    }
+    .label-content .footer-small {
+        font-size: 7.5pt;
+        margin: 1.5mm 0 0 0;
+    }
+    .label-content .footer-product {
+        font-size: 8pt;
+        font-weight: bold;
+        margin: 0;
+    }
+    .empty-cell .label-content {
+        display: none;
+    }
+</style>
+{% macro fmt_weight(net_kg) -%}
+    {%- set nk = net_kg or 0 -%}
+    {%- if nk > 0 and nk < 1 -%}
+        {{ ((nk * 1000) | round(0) | int) }} g
+    {%- else -%}
+        {{ "%.3f"|format(nk) }} kg
+    {%- endif -%}
+{%- endmacro %}
+{% for page_idx in range(_pages) %}
+<div class="label-sheet">
+    {% set _start = page_idx * _per_page %}
+    {% for grid_pos in range(_per_page) %}
+        {% if grid_pos % 2 == 0 %}
+            {% if grid_pos > 0 %}</div>{% endif %}
+            <div class="label-row">
+        {% endif %}
+        {% set row_idx = _start + grid_pos %}
+        {% set row = _rows[row_idx] if row_idx < _total else None %}
+        <div class="label-cell{% if row is none %} empty-cell{% endif %}">
+            {% if row %}
+            <div class="label-content">
+                <div class="item-name">{{ row.label_item_name or "" }}</div>
+                <div class="lot">LOTE: {{ row.label_lot or "" }}</div>
+                <div class="dates">M.D. {{ row.label_manufacture_date or "" }} &nbsp;&nbsp; E.D. {{ row.label_expiration_date or "" }}</div>
+                <div class="net-weight">NET WEIGHT: {{ fmt_weight(row.net_weight) }}</div>
+                {% if row.label_sample_tag %}
+                <div class="sample-tag">{{ row.label_sample_tag }}</div>
+                {% endif %}
+                <div class="footer-small">No commercial value. For sample use only</div>
+                <div class="footer-product">PRODUCT OF MEXICO</div>
+            </div>
+            {% endif %}
+        </div>
+        {% if grid_pos == _per_page - 1 %}</div>{% endif %}
+    {% endfor %}
+</div>
+{% endfor %}
+{% if _total == 0 %}
+<div style="padding: 30mm; font-family: Arial; font-size: 11pt; color: #666; text-align: center;">
+    No active label rows on this Batch AMB.<br><br>
+    Click <b>Generate Label Cells / Generar Etiquetas</b> and ensure each Container Barrel row has
+    <b>Print Label / Imprimir = checked</b>.
+</div>
+{% endif %}
