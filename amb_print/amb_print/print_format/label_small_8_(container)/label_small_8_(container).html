@@ -63,11 +63,18 @@ the actual ~85mm x 65mm die-cut labels with ~18mm side margins and
         box-sizing: border-box;
         position: relative;
         overflow: hidden;
-        border: 1px dashed #999;
+        /* 2026-09-01: no cut-guides. These sheets print onto pre-printed
+           AMB die-cut stock; any cell border lands as ink on the artwork.
+           Restored from hand-patch 7f5548fc (borders-off), which was lost
+           when the backend container was recreated from image. */
+        border: 0 none;
     }
     .empty-cell {
-        border-style: dashed;
-        border-color: #ccc;
+        /* must also be zeroed: .empty-cell is applied ALONGSIDE .label-cell
+           (see the cell div below) and, at equal specificity, wins on
+           border-style. Style alone would revive the border at the
+           shorthand's initial width (medium = 3px). */
+        border: 0 none;
     }
     .label-content {
         position: absolute;
