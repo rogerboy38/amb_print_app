@@ -43,7 +43,13 @@ the actual ~85mm x 65mm die-cut labels with ~18mm side margins and
         display: flex;
         flex-direction: column;
         gap: 4mm;
-        padding: 4mm 18mm 3.5mm 18mm;
+        /* 2026-09-01, Alicia's measurement of the correct pre-printed
+           stock: 16mm from the sheet edge to the first die-cut box, 4mm
+           from the top. Sides were 18mm, landing content 2mm right of the
+           label. Bottom 3.5mm -> 3mm: 4 + (4*65) + (3*4) + 3.5 = 279.5mm
+           on a 279.4mm sheet, i.e. over-constrained, so the flex column
+           was silently shrinking every row. */
+        padding: 4mm 16mm 3mm 16mm;
         margin: 0;
         box-sizing: border-box;
         page-break-after: always;
@@ -53,7 +59,11 @@ the actual ~85mm x 65mm die-cut labels with ~18mm side margins and
     }
     .label-row {
         display: flex;
-        gap: 10mm;
+        /* space-between instead of a fixed 10mm gutter: 18+85+10+85+18 = 216mm
+           overflowed the 215.9mm sheet. With 16mm padding each side the two
+           85mm cells sit at 16mm and 114.9mm, gutter 13.9mm, symmetric, and
+           the row can never over-constrain itself again. */
+        justify-content: space-between;
         width: 100%;
         height: 65mm;
     }
@@ -78,9 +88,14 @@ the actual ~85mm x 65mm die-cut labels with ~18mm side margins and
     }
     .label-content {
         position: absolute;
-        top: 3mm;
-        left: 3mm;
-        right: 3mm;
+        /* 2026-09-01: text was starting 3mm below the cell top and printing
+           straight through the pre-printed AMB Wellness logo (visible on all
+           8 labels of ACE Scanner_Impresion ERP.pdf). Alicia measured the
+           correct stock: text begins 17mm down, 7mm in from the side.
+           Leaves a 45mm content box; the stack measures ~34mm. */
+        top: 17mm;
+        left: 7mm;
+        right: 7mm;
         bottom: 3mm;
         font-size: 9pt;
         line-height: 1.25;
