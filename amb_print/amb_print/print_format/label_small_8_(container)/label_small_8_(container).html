@@ -148,11 +148,12 @@ worst-case stack (2-line item name + a tag) inside Alicia's measured
         margin: 0;
     }
     .label-content .sample-tag {
-        /* Track 3, 2026-09-02: 9.5pt -> 9pt, margin 0.5mm -> 0. Still keeps
-           the widest phrase (MICROBIOLOGICAL ANALYSIS SAMPLE) well clear of
-           the QR zone (measured <= ~58mm wide, right edge <= 70mm from cell
-           left, against Alicia's QR at x 72-82mm). */
-        font-size: 9pt;
+        /* Track 3, 2026-09-02: 9.5pt -> 9pt, margin 0.5mm -> 0.
+           2026-09-02, follow-up: measured right edge at 9pt was 73.05mm,
+           over the <=70mm target (card's own width estimate was low by
+           ~3mm). 9pt -> 8pt, this cell only -- no other font size in this
+           template changed. */
+        font-size: 8pt;
         font-weight: bold;
         color: #c00000;
         text-transform: uppercase;
