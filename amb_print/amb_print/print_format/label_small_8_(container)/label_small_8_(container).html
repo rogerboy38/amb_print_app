@@ -21,12 +21,38 @@ AMB Wellness label stock (measured from AMB ETIQUETA CONVENCIONAL REV2.pdf
 dieline/artwork). Previous 105mm x 67.25mm edge-to-edge grid did not match
 the actual ~85mm x 65mm die-cut labels with ~18mm side margins and
 ~10mm/4mm gutters — text was landing off the pre-printed blank zone.
+
+2026-09-02 (Track 5): sample-tag cells. `sample_tags` is a list of 0-4
+fixed phrases (never free text) requested at print time. Each requested
+phrase that is NOT already present on any active row's label_sample_tag
+becomes ONE extra cell, appended after the active barrel rows, using the
+first active row's (or the batch's) item/lot/dates/net-weight — same
+content style as a normal cell, tag text in the existing .sample-tag
+class. Nothing is written to Container Barrels or any document; this is
+print-time only. `start_position` (already wired, previously unused by
+any caller) is honoured the same way label_4_(container) does — empty
+cells are emitted before the first real cell.
+
+2026-09-02 (Track 3 compaction, required by the sample-tag addition):
+line-height 1.25 -> 1.10, footer-small margin-top 1.5mm -> 0.5mm,
+sample-tag margin-top 0.5mm -> 0 and font-size 9.5pt -> 9pt. Keeps the
+worst-case stack (2-line item name + a tag) inside Alicia's measured
+17->47mm window; item-name top position (17mm) is unchanged.
 #}
 {% set _all_rows = (doc.container_barrels or []) %}
 {% set _rows = _all_rows | selectattr("label_is_active", "equalto", 1) | list %}
 {% set _per_page = 8 %}
-{% set _total = _rows | length %}
-{% set _pages = ((_total + _per_page - 1) // _per_page) if _total else 1 %}
+{% set _positions = ["A1","B1","A2","B2","A3","B3","A4","B4"] %}
+{% set _sp = start_position if (start_position and start_position in _positions) else "A1" %}
+{% set _start_index = _positions.index(_sp) %}
+{% set _existing_tags = _rows | map(attribute="label_sample_tag") | select | list %}
+{% set _requested_tags = sample_tags or [] %}
+{% set _tag_cells = _requested_tags | reject("in", _existing_tags) | list %}
+{% set _rows_total = _rows | length %}
+{% set _tags_total = _tag_cells | length %}
+{% set _total = _rows_total + _tags_total %}
+{% set _pages = ((_total + _start_index + _per_page - 1) // _per_page) if _total else 1 %}
+{% set _fallback_row = _rows[0] if _rows else None %}
 <style>
     @page {
         size: 215.9mm 279.4mm;
@@ -98,7 +124,11 @@ the actual ~85mm x 65mm die-cut labels with ~18mm side margins and
         right: 7mm;
         bottom: 3mm;
         font-size: 9pt;
-        line-height: 1.25;
+        /* Track 3, 2026-09-02: 1.25 -> 1.10, part of the compaction that
+           keeps a 2-line item name + a sample tag inside the 17->47mm
+           window. Only this and the two margins below changed; no other
+           font sizes moved (Alicia's concern was legibility, not space). */
+        line-height: 1.10;
         text-align: center;
     }
     .label-content > div {
@@ -118,15 +148,20 @@ the actual ~85mm x 65mm die-cut labels with ~18mm side margins and
         margin: 0;
     }
     .label-content .sample-tag {
-        font-size: 9.5pt;
+        /* Track 3, 2026-09-02: 9.5pt -> 9pt, margin 0.5mm -> 0. Still keeps
+           the widest phrase (MICROBIOLOGICAL ANALYSIS SAMPLE) well clear of
+           the QR zone (measured <= ~58mm wide, right edge <= 70mm from cell
+           left, against Alicia's QR at x 72-82mm). */
+        font-size: 9pt;
         font-weight: bold;
         color: #c00000;
         text-transform: uppercase;
-        margin: 0.5mm 0 0 0;
+        margin: 0;
     }
     .label-content .footer-small {
         font-size: 7.5pt;
-        margin: 1.5mm 0 0 0;
+        /* Track 3, 2026-09-02: 1.5mm -> 0.5mm */
+        margin: 0.5mm 0 0 0;
     }
     .label-content .footer-product {
         font-size: 8pt;
@@ -153,9 +188,11 @@ the actual ~85mm x 65mm die-cut labels with ~18mm side margins and
             {% if grid_pos > 0 %}</div>{% endif %}
             <div class="label-row">
         {% endif %}
-        {% set row_idx = _start + grid_pos %}
-        {% set row = _rows[row_idx] if row_idx < _total else None %}
-        <div class="label-cell{% if row is none %} empty-cell{% endif %}">
+        {% set row_idx = _start + grid_pos - _start_index %}
+        {% set is_valid = row_idx >= 0 and row_idx < _total %}
+        {% set row = _rows[row_idx] if (is_valid and row_idx < _rows_total) else None %}
+        {% set tag_text = _tag_cells[row_idx - _rows_total] if (is_valid and row_idx >= _rows_total) else None %}
+        <div class="label-cell{% if not row and not tag_text %} empty-cell{% endif %}">
             {% if row %}
             <div class="label-content">
                 <div class="item-name">{{ row.label_item_name or "" }}</div>
@@ -165,6 +202,16 @@ the actual ~85mm x 65mm die-cut labels with ~18mm side margins and
                 {% if row.label_sample_tag %}
                 <div class="sample-tag">{{ row.label_sample_tag }}</div>
                 {% endif %}
+                <div class="footer-small">No commercial value. For sample use only</div>
+                <div class="footer-product">PRODUCT OF MEXICO</div>
+            </div>
+            {% elif tag_text %}
+            <div class="label-content">
+                <div class="item-name">{{ (_fallback_row.label_item_name if _fallback_row else doc.get("item_to_manufacture")) or "" }}</div>
+                <div class="lot">LOTE: {{ (_fallback_row.label_lot if _fallback_row else doc.get("custom_golden_number")) or "" }}</div>
+                <div class="dates">M.D. {{ (_fallback_row.label_manufacture_date if _fallback_row else "") }} &nbsp;&nbsp; E.D. {{ (_fallback_row.label_expiration_date if _fallback_row else "") }}</div>
+                <div class="net-weight">NET WEIGHT: {{ fmt_weight(_fallback_row.net_weight if _fallback_row else 0) }}</div>
+                <div class="sample-tag">{{ tag_text }}</div>
                 <div class="footer-small">No commercial value. For sample use only</div>
                 <div class="footer-product">PRODUCT OF MEXICO</div>
             </div>

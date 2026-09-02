@@ -52,7 +52,8 @@ def _scrub(s: str) -> str:
         return _legacy_scrub(s)
 
 
-def build_html(doctype: str, docname: str, print_format: str, start_position=None, label_qty=None) -> str:
+def build_html(doctype: str, docname: str, print_format: str, start_position=None,
+                label_qty=None, sample_tags=None) -> str:
     """Render the print_format's .html template directly to a complete HTML doc.
 
     Parameters
@@ -63,6 +64,10 @@ def build_html(doctype: str, docname: str, print_format: str, start_position=Non
         e.g. "LOTE-26-19-0001"
     print_format : str
         e.g. "Label Small 8 (Container)"
+    sample_tags : list[str] | None
+        Track 5 (2026-09-02). 0-4 fixed phrases requested at print time
+        (never free text). Only "Label Small 8 (Container)" honours this;
+        other templates receive it in context and simply ignore it.
 
     Returns
     -------
@@ -123,6 +128,7 @@ def build_html(doctype: str, docname: str, print_format: str, start_position=Non
         "frappe": frappe,
         "start_position": start_position,
         "label_qty": label_qty,
+        "sample_tags": sample_tags,
     }
     inner = frappe.render_template(tpl_src, context)
 

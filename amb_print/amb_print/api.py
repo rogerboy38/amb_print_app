@@ -40,7 +40,7 @@ logger = logging.getLogger(__name__)
 @frappe.whitelist()
 def print_label_pdf(doctype: str, docname: str, print_format: str,
                     save_attachment: int = 1, is_private: int = 0,
-                    start_position=None, label_qty=None) -> dict:
+                    start_position=None, label_qty=None, sample_tags=None) -> dict:
     """Render a label PDF for (doctype, docname) using `print_format`.
 
     Parameters
@@ -57,6 +57,12 @@ def print_label_pdf(doctype: str, docname: str, print_format: str,
         0 returns the PDF bytes only (base64 in `pdf_base64`).
     is_private : int
         0 (default) makes the attachment public; 1 makes it private.
+    sample_tags : list[str] | str | None
+        Track 5 (2026-09-02). 0-4 fixed phrases, e.g.
+        ["MICROBIOLOGICAL ANALYSIS SAMPLE"]. Only honoured by
+        "Label Small 8 (Container)"; other formats ignore it. Accepted as
+        a JSON-encoded string too, since frappe.call serializes list args
+        that way over HTTP.
 
     Returns
     -------
@@ -76,6 +82,8 @@ def print_label_pdf(doctype: str, docname: str, print_format: str,
 
     save_attachment = int(save_attachment)
     is_private = int(is_private)
+    if isinstance(sample_tags, str):
+        sample_tags = frappe.parse_json(sample_tags)
 
     logger.info("amb_print.print_label_pdf: %s %s via %s",
                 doctype, docname, print_format)
@@ -83,7 +91,8 @@ def print_label_pdf(doctype: str, docname: str, print_format: str,
     # 1) Build HTML directly from the print_format template (no Frappe wrapper)
     html = build_html(doctype=doctype, docname=docname,
                       print_format=print_format,
-                      start_position=start_position, label_qty=label_qty)
+                      start_position=start_position, label_qty=label_qty,
+                      sample_tags=sample_tags)
 
     # 2) Render to PDF via Playwright (Chromium). prefer_css_page_size=True
     #    means the template's @page rule wins, so labels go full bleed
