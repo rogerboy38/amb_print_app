@@ -128,6 +128,21 @@ def main(site):
               len(cell_divs) >= 4 and cell_divs[0] and cell_divs[1] and cell_divs[2] and not cell_divs[3],
               f"first 4 cell classes: {cell_divs[:4]}")
 
+        # --- Check 5b: tag cells never render the literal string "None"
+        #     (regression -- found live during Track 5 §5 measurement:
+        #     E.D. on a tag cell rendered "E.D. None" because the fallback
+        #     expression skipped the `or ""` coalescing the regular-row
+        #     branch has). Use a batch/tag combo guaranteed to produce at
+        #     least one tag cell.
+        html_tags = build_html(
+            doctype="Batch AMB", docname="LOTE-26-26-0005",
+            print_format="Label Small 8 (Container)",
+            sample_tags=["AMB WELLNESS RETENTION"],
+        )
+        check("5b. no literal 'None' text in tag-cell output",
+              " None" not in html_tags and ">None<" not in html_tags,
+              "found a literal None -- a field access is missing 'or \"\"'")
+
         # --- Check 5: sample_tags=[] / None produce byte-identical output ---
         html_none = build_html(
             doctype="Batch AMB", docname="LOTE-26-26-0005",

@@ -209,7 +209,7 @@ worst-case stack (2-line item name + a tag) inside Alicia's measured
             <div class="label-content">
                 <div class="item-name">{{ (_fallback_row.label_item_name if _fallback_row else doc.get("item_to_manufacture")) or "" }}</div>
                 <div class="lot">LOTE: {{ (_fallback_row.label_lot if _fallback_row else doc.get("custom_golden_number")) or "" }}</div>
-                <div class="dates">M.D. {{ (_fallback_row.label_manufacture_date if _fallback_row else "") }} &nbsp;&nbsp; E.D. {{ (_fallback_row.label_expiration_date if _fallback_row else "") }}</div>
+                <div class="dates">M.D. {{ (_fallback_row.label_manufacture_date if _fallback_row else "") or "" }} &nbsp;&nbsp; E.D. {{ (_fallback_row.label_expiration_date if _fallback_row else "") or "" }}</div>
                 <div class="net-weight">NET WEIGHT: {{ fmt_weight(_fallback_row.net_weight if _fallback_row else 0) }}</div>
                 <div class="sample-tag">{{ tag_text }}</div>
                 <div class="footer-small">No commercial value. For sample use only</div>
