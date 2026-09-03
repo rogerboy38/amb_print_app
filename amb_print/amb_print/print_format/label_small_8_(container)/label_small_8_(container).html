@@ -51,6 +51,19 @@ worst-case stack (2-line item name + a tag) inside Alicia's measured
 {% set _rows_total = _rows | length %}
 {% set _tags_total = _tag_cells | length %}
 {% set _total = _rows_total + _tags_total %}
+{#- 2026-09-03 Track 2 (folded into the Track 5b card): the DOCUMENT is the source of truth for
+    both dates. W4a writes doc.expiry_date from wo_start_date (else production_start_date) + shelf
+    life; label_cells wrote the row TEXT from batch.creation, which diverges whenever a lot was
+    created on a different day than it was started (LOTE-26-33-0002: label 12/08/28 vs doc
+    2028-07-29). Precedence: doc date -> row text -> empty. Empty stays empty (Alicia 09-03). -#}
+{%- macro _d(v) -%}{%- if v -%}{{ frappe.utils.formatdate(v, "dd/mm/yy") }}{%- endif -%}{%- endmacro -%}
+{%- set _doc_md = doc.get("wo_start_date") or doc.get("production_start_date") -%}
+{%- set _doc_ed = doc.get("expiry_date") -%}
+{%- macro _dates(row_md, row_ed) -%}
+{%- set _md = (_d(_doc_md) if _doc_md else (row_md or "")) -%}
+{%- set _ed = (_d(_doc_ed) if _doc_ed else (row_ed or "")) -%}
+{%- if _md or _ed %}<div class="dates">{% if _md %}M.D. {{ _md }}{% endif %}{% if _md and _ed %} &nbsp;&nbsp; {% endif %}{% if _ed %}E.D. {{ _ed }}{% endif %}</div>{% endif -%}
+{%- endmacro -%}
 {% set _pages = ((_total + _start_index + _per_page - 1) // _per_page) if _total else 1 %}
 {% set _fallback_row = _rows[0] if _rows else None %}
 <style>
@@ -158,6 +171,15 @@ worst-case stack (2-line item name + a tag) inside Alicia's measured
         color: #c00000;
         text-transform: uppercase;
         margin: 0;
+        /* Track 5b, 2026-09-03: on Alicia's stock the pre-printed QR sits at
+           x 72-82mm, y 33-44mm -- the same band this line lands in. Centered,
+           the longest phrase (MICROBIOLOGICAL ANALYSIS SAMPLE, ~54mm at 8pt)
+           ended at x 69.7mm predicted and touched the QR on paper. Start the
+           tag at the content box's left edge instead (x 7mm -> ends ~61mm) and
+           reserve 14mm on the right so any longer future phrase wraps before
+           x 64mm rather than reaching the QR. No font size changed. */
+        text-align: left;
+        padding-right: 14mm;
     }
     .label-content .footer-small {
         font-size: 7.5pt;
@@ -198,7 +220,9 @@ worst-case stack (2-line item name + a tag) inside Alicia's measured
             <div class="label-content">
                 <div class="item-name">{{ row.label_item_name or "" }}</div>
                 <div class="lot">LOTE: {{ row.label_lot or "" }}</div>
-                <div class="dates">M.D. {{ row.label_manufacture_date or "" }} &nbsp;&nbsp; E.D. {{ row.label_expiration_date or "" }}</div>
+                {# 2026-09-03 Alicia: "que no aparezca el E.D. ni el M.D. si llegan a estar vacios";
+                   dates from the document first (Track 2), see the _dates macro above. #}
+                {{ _dates(row.label_manufacture_date, row.label_expiration_date) }}
                 <div class="net-weight">NET WEIGHT: {{ fmt_weight(row.net_weight) }}</div>
                 {% if row.label_sample_tag %}
                 <div class="sample-tag">{{ row.label_sample_tag }}</div>
@@ -210,7 +234,7 @@ worst-case stack (2-line item name + a tag) inside Alicia's measured
             <div class="label-content">
                 <div class="item-name">{{ (_fallback_row.label_item_name if _fallback_row else doc.get("item_to_manufacture")) or "" }}</div>
                 <div class="lot">LOTE: {{ (_fallback_row.label_lot if _fallback_row else doc.get("custom_golden_number")) or "" }}</div>
-                <div class="dates">M.D. {{ (_fallback_row.label_manufacture_date if _fallback_row else "") or "" }} &nbsp;&nbsp; E.D. {{ (_fallback_row.label_expiration_date if _fallback_row else "") or "" }}</div>
+                {{ _dates(_fallback_row.label_manufacture_date if _fallback_row else "", _fallback_row.label_expiration_date if _fallback_row else "") }}
                 <div class="net-weight">NET WEIGHT: {{ fmt_weight(_fallback_row.net_weight if _fallback_row else 0) }}</div>
                 <div class="sample-tag">{{ tag_text }}</div>
                 <div class="footer-small">No commercial value. For sample use only</div>
