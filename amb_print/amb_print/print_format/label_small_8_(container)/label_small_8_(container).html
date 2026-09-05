@@ -166,7 +166,14 @@ worst-case stack (2-line item name + a tag) inside Alicia's measured
            over the <=70mm target (card's own width estimate was low by
            ~3mm). 9pt -> 8pt, this cell only -- no other font size in this
            template changed. */
-        font-size: 8pt;
+        /* Track 5c, 2026-09-05 (Alicia, paper 09-05: "Centrada"): centred, but on
+           the column that ends 3mm short of the pre-printed QR (x 7-69mm), not on
+           the label axis -- centred at 8pt on the axis is the geometry that touched
+           the QR (69.7mm). 8pt -> 7pt so the longest phrase (MICROBIOLOGICAL
+           ANALYSIS SAMPLE, 54.25mm measured at 8pt on t5d) is ~47.5mm and ends
+           ~61.8mm. Column centre 38mm = 4.5mm left of the text axis. No other
+           font size in this template changed. */
+        font-size: 7.5pt;
         font-weight: bold;
         color: #c00000;
         text-transform: uppercase;
@@ -178,8 +185,8 @@ worst-case stack (2-line item name + a tag) inside Alicia's measured
            tag at the content box's left edge instead (x 7mm -> ends ~61mm) and
            reserve 14mm on the right so any longer future phrase wraps before
            x 64mm rather than reaching the QR. No font size changed. */
-        text-align: left;
-        padding-right: 14mm;
+        text-align: center;
+        padding-right: 9mm; /* content box 7-78mm -> tag column 7-69mm */
     }
     .label-content .footer-small {
         font-size: 7.5pt;
