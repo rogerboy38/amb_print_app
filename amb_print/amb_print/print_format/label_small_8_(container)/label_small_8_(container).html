@@ -161,32 +161,46 @@ worst-case stack (2-line item name + a tag) inside Alicia's measured
         margin: 0;
     }
     .label-content .sample-tag {
-        /* Track 3, 2026-09-02: 9.5pt -> 9pt, margin 0.5mm -> 0.
-           2026-09-02, follow-up: measured right edge at 9pt was 73.05mm,
-           over the <=70mm target (card's own width estimate was low by
-           ~3mm). 9pt -> 8pt, this cell only -- no other font size in this
-           template changed. */
-        /* Track 5c, 2026-09-05 (Alicia, paper 09-05: "Centrada"): centred, but on
-           the column that ends 3mm short of the pre-printed QR (x 7-69mm), not on
-           the label axis -- centred at 8pt on the axis is the geometry that touched
-           the QR (69.7mm). 8pt -> 7pt so the longest phrase (MICROBIOLOGICAL
-           ANALYSIS SAMPLE, 54.25mm measured at 8pt on t5d) is ~47.5mm and ends
-           ~61.8mm. Column centre 38mm = 4.5mm left of the text axis. No other
-           font size in this template changed. */
+        /* SIZE + ALIGNMENT HISTORY for this cell. Track 5d, 2026-09-07: the three
+           superseded comment blocks that stood here were consolidated into this one,
+           because they described three retired states and the Track 5b block is what
+           made the leftover padding-right below read as deliberate.
+             Track 3, 09-02: 9.5pt -> 9pt -> 8pt (right edge at 9pt measured 73.05mm,
+               over the <=70mm target). This cell only; no other font size changed.
+             Track 5b, 09-03: LEFT-aligned at the content box's left edge with a 14mm
+               right reserve, to clear the pre-printed QR at x 72-82mm, y 33-44mm on
+               Alicia's stock.
+             Track 5c, 09-05: Alicia asked for centred. Shipped text-align:center and
+               8pt -> 7.5pt, and cut the right reserve 14mm -> 9mm but did NOT remove
+               it. (That commit's own comment said "8pt -> 7pt ... ~47.5mm"; the file
+               shipped 7.5pt, so its geometry prose was computed for a size that never
+               shipped. Corrected here.)
+             Track 5d, 09-07, THIS change: the 09-05 fix half-landed. text-align:center
+               centres within the padding box's CONTENT area, so the surviving
+               padding-right put this line's axis padding-right/2 = 4.50mm left of the
+               axis every other line uses. Measured in
+               Label_Small_8_Container-LOTE-26-31-0004-20260907_163759.pdf (MediaBox
+               612x792, Playwright): the six non-tag lines centre on the content-box
+               axis to within +/-0.005mm; the four tag lines centre exactly 4.500mm
+               left of it. Alicia: "sigue con la frase roja sin estar centrada" -- it
+               was centred, on the wrong axis.
+               FIX: make the padding SYMMETRIC. That restores the label axis AND keeps
+               Track 5b's guard: a phrase wider than 53mm still wraps rather than
+               growing toward the QR. Longest current phrase, MICROBIOLOGICAL ANALYSIS
+               SAMPLE, measures 50.912mm at 7.5pt (not the 54.25mm@8pt or ~47.5mm@7pt
+               figures the old comments quoted), so it spans x 17.04-67.96mm; QR
+               clearance 4.04mm, against 8.54mm while it was off-axis.
+               CLEARANCE: axis-centring and a >=11mm QR clearance are mutually
+               exclusive for this phrase at 7.5pt. 4.04mm is cowork's recommendation
+               pending Hugh's word, to be confirmed by scanning the QR on the die-cut
+               proof rather than shrinking the type (Alicia: "el 7 se lee bien"). */
         font-size: 7.5pt;
         font-weight: bold;
         color: #c00000;
         text-transform: uppercase;
         margin: 0;
-        /* Track 5b, 2026-09-03: on Alicia's stock the pre-printed QR sits at
-           x 72-82mm, y 33-44mm -- the same band this line lands in. Centered,
-           the longest phrase (MICROBIOLOGICAL ANALYSIS SAMPLE, ~54mm at 8pt)
-           ended at x 69.7mm predicted and touched the QR on paper. Start the
-           tag at the content box's left edge instead (x 7mm -> ends ~61mm) and
-           reserve 14mm on the right so any longer future phrase wraps before
-           x 64mm rather than reaching the QR. No font size changed. */
         text-align: center;
-        padding-right: 9mm; /* content box 7-78mm -> tag column 7-69mm */
+        padding: 0 9mm; /* SYMMETRIC: keeps Track 5b's 9mm wrap guard without moving the axis */
     }
     .label-content .footer-small {
         font-size: 7.5pt;
